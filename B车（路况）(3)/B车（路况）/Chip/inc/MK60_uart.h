@@ -51,7 +51,6 @@ extern void uart_putchar   (UARTn_e, char ch);                 //发送1个字节
 extern void uart_putbuff   (UARTn_e , uint8 *buff, uint32 len);//发送len个字节buff
 extern void uart_putstr    (UARTn_e , const uint8 *str);       //发送字符串
 
-extern void USendOneByte(UARTn_e uratn, char ch);
 
 //中断相关代码
 extern void uart_rx_irq_en (UARTn_e);                          //开串口接收中断

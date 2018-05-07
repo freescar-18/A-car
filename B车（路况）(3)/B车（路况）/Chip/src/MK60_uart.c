@@ -400,15 +400,7 @@ void uart_putchar (UARTn_e uratn, char ch)
     //发送数据
     UART_D_REG(UARTN[uratn]) = (uint8)ch;
 }
-/*
-发送一个字节
-*/
-void USendOneByte(UARTn_e uratn, char ch)
-{
-  //等待发送缓冲区空
-  while(!(UART_S1_REG(UARTN[uratn]) & UART_S1_TDRE_MASK));
-  UARTN[uratn]->D = (uint8)ch;
-}
+
 /*!
  *  @brief      查询是否接受到一个字节
  *  @param      UARTn_e       模块号（UART0~UART5）

@@ -66,7 +66,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>7.40.3.8937</state>
+                    <state>8.10.1.12859</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -6389,10 +6389,10 @@
             <name>$PROJ_DIR$\..\..\App\test.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\wireless.c</name>
+            <name>$PROJ_DIR$\..\..\App\wireless.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\wireless.h</name>
+            <name>$PROJ_DIR$\..\..\App\wireless.h</name>
         </file>
     </group>
 </project>

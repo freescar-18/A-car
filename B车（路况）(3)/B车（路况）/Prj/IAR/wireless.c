@@ -215,9 +215,7 @@ void sendDataToScope(void)
   uart_putchar(UART4,251) ;//USendOneByte(FreeCarsUARTPort,251);
   uart_putchar(UART4,109) ;//USendOneByte(FreeCarsUARTPort,109);
   uart_putchar(UART4,37) ;//USendOneByte(FreeCarsUARTPort,37);
- // USendOneByte(UART5,251);
-  //USendOneByte(UART5,109);
- // USendOneByte(UART5,37) ;
+
   sum+=(251);      //全部数据加入校验
   sum+=(109);
   sum+=(37);

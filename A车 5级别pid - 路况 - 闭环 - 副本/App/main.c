@@ -76,12 +76,12 @@ void main()
           ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM
           ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM
        }  */
-     //  oled_view();
+       oled_view();
      //  test_motor(); 
       //  test_steering();
     // test_ADC();
      // test_max_ADC();
-       OutPut_Data_test();//示波器调试  
+    //   OutPut_Data_test();//示波器调试  
        
       //Freecars_scope();//多通道示波器调试
        

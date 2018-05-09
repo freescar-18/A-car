@@ -151,6 +151,7 @@ void test_motor(void)
         ADCnormal(); //采集的信息归一化
         ADCerror_diff(); //偏差法计算 误差 和 误差的变化率
        // road_check();
+        fe = fe + 60;
         if(none_steerctrl == 0)
         {
             fuzzy_mem_cal(); //对输入的 fe（误差） 和 fec（误差变化率） 查询隶属度

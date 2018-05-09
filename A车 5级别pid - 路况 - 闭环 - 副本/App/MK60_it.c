@@ -29,7 +29,7 @@ int8 times = 0; //定时停车标志位 PIT0定时器
 int8 ones = 0;//只能写一次数据！！
 int8 tab = 0;
 
-
+extern uint8 last_stop;//终点停车标记 大于1为停车
 /******************************************************************************* 
  *  @brief      PIT0中断服务函数
  *  @note
@@ -165,6 +165,7 @@ void PORTB_IRQHandler(void)
          times = 0;//清空停车时间计时
          huandao_flag_a = 0; huandao_flag_b = 0;//huandao_flag_c = 0; 
          huandao_flag_d = 0; huandao_flag_e = 0; //huandao_flag_f = 0;
+         last_stop = 0; //停车恢复
          DELAY_MS(300);
         /*  以上为用户任务  */
     }
@@ -223,7 +224,8 @@ void PORTE_IRQHandler(void)
         PORTE_ISFR  = (1 << n);        //写1清中断标志位
 
         /*  以下为用户任务  */
-
+        beep_on();
+        last_stop = 1; //最终停车标记
 
         /*  以上为用户任务  */
     }

@@ -54,6 +54,11 @@ int16 send_b=10000;//10000对应万位，以此类推
 
 extern float speed_power;
 extern uint8 none_steerctrl; 
+extern int16 speedctrl_left,speedctrl_right; 
+int16 speedctrl_left_opp,speedctrl_right_opp; 
+uint8 last_stop = 0;
+extern float speed_forecast; //预测将要达到的速度（PWM）
+extern float speed_forecast_error; //预测将要达到的速度的偏差（差速）
 
 
 /*******************************************************************************
@@ -136,7 +141,7 @@ void test_ADC(void)
  ******************************************************************************/
 void test_motor(void)
 {
-      speed_now_right = ftm_quad_get(FTM2);  //right轮
+        speed_now_right = ftm_quad_get(FTM2);  //right轮
         speed_now_left = (int)( 2.46 * (lptmr_pulse_get()) );  //4000 - 1m   20 - 1m/s  left轮
         ftm_quad_clean(FTM2);
         lptmr_pulse_clean();
@@ -153,77 +158,171 @@ void test_motor(void)
             fuzzy_solve(); //解模糊
             steercontrol(); //舵机控制，输出 steerctrl 为舵机转角
         }
-        speed_fuzzy_mem_cal_forecast(); //对输入的 fe（误差）的绝对值 和 fec（误差变化率）的绝对值 查询隶属度
-        speed_fuzzy_query_forecast(); //查询模糊规则表（速度）
-        speed_fuzzy_solve_forecast(); //解模糊 输出 speed_forecast 为预期的速度
-        speedcontrol_forecast();
-        speed_fuzzy_mem_cal_left();
-        speed_fuzzy_query_left();
-        speed_fuzzy_solve_left();
-        speedcontrol_left();
-        speed_fuzzy_mem_cal_right();
-        speed_fuzzy_query_right();
-        speed_fuzzy_solve_right();
-        speedcontrol_right(); 
-     // Road_Id_Get();
-     
-        /***************  没有闭环的补充 **********************/
-    /*    if(fe < 0)
-        {
-            speedctrl_right = (int)( speed_power * (100 * (speed_forecast - speed_forecast_error)) ); //- speed_forecast_error
-            speedctrl_left = (int)( speed_power * (100 * speed_forecast) );
-        }
-        else
-        {
-            speedctrl_left = (int)( speed_power * (100 * (speed_forecast - speed_forecast_error)) );
-            speedctrl_right = (int)( speed_power * (100 * speed_forecast) );
-        } */
-         /*****************************************************/
-       
-      //  if(steerctrl <  Minsteering) steerctrl =  Minsteering;  //舵机转角保护
-      //  if(steerctrl > Maxsteering) steerctrl = Maxsteering;  //舵机转角保护
-        
-        /****** 记录有用的数据 *****/
-        if(u<3) u++; //由于第一次计算没有上一次的值，因此避开前几次的数据记录
-        else
-        {
-        if(speed_fec > speed_fec_max)  speed_fec_max = speed_fec; //记录最大fec
-        if(speed_forecast < speed_min)  speed_min = speed_forecast; //记录最小速度
-        }
-        
-        /*****  Part 4 停车判断  *****/
-       if((ADC_Value[0] <= 10) && (ADC_Value[1] <= 10) && (ADC_Value[2] <= 10) && (ADC_Value[3] <= 10) ) //如果四个电感都偏小，则将flag变成1，然后进入下面的死循环
-        {                                                                                                 
-          flag = 1;                                                                                       
-        }     
-     /*   if(flag == 1) // 进入死循环，电机停止转动
-        {
-         speed_forecast = 0;
-          //   ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //电机输出 0
-         //   ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //电机输出 0
-       //     LED_PrintShort(50,7,speed_forecast); //显示电机PWM
-        //  LED_PrintValueF(50,5,speed_fec_max,2); //显示最大误差变化率的绝对值
-        //     LED_PrintValueF(50,3,speed_min,2); //显示最小速度
-        //     DELAY_MS(100);
-             
+        /*
+        if(gpio_get(PTE10) == 0)  
+        { 
+            beep_on();
+            last_stop = 1; //最终停车标记
+            speed_Rule[0] = 0;speed_Rule[1] = 0;speed_Rule[2] = 0;speed_Rule[3] = 0;speed_Rule[4] = 0;
+            speed_error_Rule[0] = 0;speed_error_Rule[1] = 0;speed_error_Rule[2] = 0;speed_error_Rule[3] = 0;speed_error_Rule[4] = 0;
         }*/
-       
-        if(steerctrl <  Minsteering) steerctrl =  Minsteering;  //舵机转角保护
-        if(steerctrl > Maxsteering) steerctrl = Maxsteering;  //舵机转角保护
-        
-        if(speedctrl_right < 200) speedctrl_right = 200;
-        if(speedctrl_left < 200) speedctrl_left = 200;
-        if(speedctrl_left > 4500) speedctrl_left = 4500;
-        if(speedctrl_right > 4500) speedctrl_right = 4500;
-        
-        if( flag == 1 ) // 进入死循环，电机停止转动，此时因为几十毫秒过去了，还是这么小，所以就停车了
-        {          
-            speedctrl_left = 0;
-            speedctrl_right = 0;   
-        }        
-        ftm_pwm_duty(S3010_FTM, S3010_CH,steerctrl);  //输出舵机PWM
-        ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,speedctrl_right); //输出电机PWM
-        ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,speedctrl_left); //输出电机PWM     
+        if( last_stop == 0 ) //非停车
+        {
+            speed_fuzzy_mem_cal_forecast(); //对输入的 fe（误差）的绝对值 和 fec（误差变化率）的绝对值 查询隶属度
+            speed_fuzzy_query_forecast(); //查询模糊规则表（速度）
+            speed_fuzzy_solve_forecast(); //解模糊 输出 speed_forecast 为预期的速度
+            speedcontrol_forecast();
+            speed_fuzzy_mem_cal_left();
+            speed_fuzzy_query_left();
+            speed_fuzzy_solve_left();
+            speedcontrol_left();
+            speed_fuzzy_mem_cal_right();
+            speed_fuzzy_query_right();
+            speed_fuzzy_solve_right();
+            speedcontrol_right(); 
+         // Road_Id_Get();
+            
+            /////////////////////////////舵机///////////////////////////////////////
+            if(steerctrl <  Minsteering) steerctrl =  Minsteering;  //舵机转角保护
+            if(steerctrl > Maxsteering) steerctrl = Maxsteering;  //舵机转角保护
+            ftm_pwm_duty(S3010_FTM, S3010_CH,steerctrl);  //输出舵机PWM
+            ////////////////////////////////////////////////////////////////////////
+            
+            ///////////////////////////左轮速度/////////////////////////////////////
+            if(0)  //左轮速度溢出  
+            {
+                if(speedctrl_left < -200) speedctrl_left_opp = 200;
+                else speedctrl_left_opp = -speedctrl_left;
+                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,speedctrl_left_opp); //输出电机PWM  
+            }
+            else  //左轮速度没溢出
+            {   
+                if(speedctrl_left < 200) speedctrl_left = 200;
+                if(speedctrl_left > 3500) speedctrl_left = 3500;
+                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,speedctrl_left); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM 
+            }
+            ////////////////////////////////////////////////////////////////////////
+            /////////////////////////////右轮速度////////////////////////////////////
+            if(0)  //右轮速度溢出
+            {
+                if(speedctrl_right < -200) speedctrl_right_opp = 200;
+                else speedctrl_right_opp = -speedctrl_right;
+                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,speedctrl_right_opp); //输出电机PWM  
+            }
+            else  //右轮速度没溢出
+            {
+                if(speedctrl_right < 200) speedctrl_right = 200;
+                if(speedctrl_right > 3500) speedctrl_right = 3500;
+                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,speedctrl_right); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM 
+            }
+            ////////////////////////////////////////////////////////////////////////
+            ///////////////////////////记录数据/////////////////////////////////////    
+            if(u<3) u++; //由于第一次计算没有上一次的值，因此避开前几次的数据记录
+            else
+            {
+            if(speed_fec > speed_fec_max)  speed_fec_max = speed_fec; //记录最大fec
+            if(speed_forecast < speed_min)  speed_min = speed_forecast; //记录最小速度
+            }
+            ///////////////////////////////////////////////////////////////////////
+            ////////////////////////////停车///////////////////////////////////////
+            if((ADC_Value[0] <= 10) && (ADC_Value[1] <= 10) && (ADC_Value[2] <= 10) && (ADC_Value[3] <= 10) ) //如果四个电感都偏小，则将flag变成1，然后进入下面的死循环
+            {                                                                                                 
+              flag = 1;                                                                                       
+            }
+            if( flag == 1 ) // 进入死循环，电机停止转动，此时因为几十毫秒过去了，还是这么小，所以就停车了
+            {          
+                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //输出电机PWM  right-正
+                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  left-正
+                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM  left-反
+                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM  right-反
+            } 
+        }
+        ///////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
+        ////////////////////////////////stop////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
+        else 
+        {
+            speed_forecast = 0;  //预测速度为0
+            speed_forecast_error = 0;  //预测速度为0
+            
+            speedcontrol_forecast();
+            speed_fuzzy_mem_cal_left();
+            speed_fuzzy_query_left();
+            speed_fuzzy_solve_left();
+            speedcontrol_left();
+            speed_fuzzy_mem_cal_right();
+            speed_fuzzy_query_right();
+            speed_fuzzy_solve_right();
+            speedcontrol_right(); 
+         // Road_Id_Get();
+            
+            /////////////////////////////舵机///////////////////////////////////////
+            if(steerctrl <  Minsteering) steerctrl =  Minsteering;  //舵机转角保护
+            if(steerctrl > Maxsteering) steerctrl = Maxsteering;  //舵机转角保护
+            ftm_pwm_duty(S3010_FTM, S3010_CH,steerctrl);  //输出舵机PWM
+            ////////////////////////////////////////////////////////////////////////
+            
+            ///////////////////////////左轮速度/////////////////////////////////////
+            if(speedctrl_left < 0)  //左轮速度溢出
+            {
+                if(speedctrl_left < -8000) speedctrl_left_opp = 8000;
+                else speedctrl_left_opp = -speedctrl_left;
+                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,speedctrl_left_opp); //输出电机PWM  
+            }
+            else  //左轮速度没溢出  
+            {
+                if(speedctrl_left > 1000) speedctrl_left = 1000;
+                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,speedctrl_left); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM 
+            }
+            ////////////////////////////////////////////////////////////////////////
+            /////////////////////////////右轮速度////////////////////////////////////
+            if(speedctrl_right < 0)  //右轮速度溢出
+            {
+                if(speedctrl_right < -8000) speedctrl_right_opp = 8000;
+                else speedctrl_right_opp = -speedctrl_right;
+                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,speedctrl_right_opp); //输出电机PWM  
+            }
+            else  //右轮速度没溢出
+            {
+                if(speedctrl_right > 1000) speedctrl_right = 1000;
+                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,speedctrl_right); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM 
+            }
+            ////////////////////////////////////////////////////////////////////////
+            ///////////////////////////记录数据/////////////////////////////////////    
+            if(u<3) u++; //由于第一次计算没有上一次的值，因此避开前几次的数据记录
+            else
+            {
+            if(speed_fec > speed_fec_max)  speed_fec_max = speed_fec; //记录最大fec
+            if(speed_forecast < speed_min)  speed_min = speed_forecast; //记录最小速度
+            }
+            ///////////////////////////////////////////////////////////////////////
+            ////////////////////////////停车///////////////////////////////////////
+            if((ADC_Value[0] <= 10) && (ADC_Value[1] <= 10) && (ADC_Value[2] <= 10) && (ADC_Value[3] <= 10) ) //如果四个电感都偏小，则将flag变成1，然后进入下面的死循环
+            {                                                                                                 
+                flag = 1;                                                                                       
+            }
+            if( flag == 1 ) // 进入死循环，电机停止转动，此时因为几十毫秒过去了，还是这么小，所以就停车了
+            {          
+                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //输出电机PWM  right-正
+                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  left-正
+                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM  left-反
+                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM  right-反
+            } 
+            if( last_stop < 200 ) last_stop++;  //停车计数
+            if( last_stop == 100 ) { flag = 1; beep_off(); } //停车周期  大于x个周期强制给0PWM，防止抖动
+        }   
 }
 
 /*******************************************************************************

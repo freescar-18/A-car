@@ -165,7 +165,7 @@ void PORTB_IRQHandler(void)
          times = 0;//清空停车时间计时
          huandao_flag_a = 0; huandao_flag_b = 0;//huandao_flag_c = 0; 
          huandao_flag_d = 0; huandao_flag_e = 0; //huandao_flag_f = 0;
-         last_stop = 0; //停车恢复
+         last_stop = 0; //终点停车标记位恢复，变为0
          DELAY_MS(300);
         /*  以上为用户任务  */
     }
@@ -225,7 +225,7 @@ void PORTE_IRQHandler(void)
 
         /*  以下为用户任务  */
         beep_on();
-       // last_stop = 1; //最终停车标记
+        last_stop = 1; //最终停车标记
 
         /*  以上为用户任务  */
     }

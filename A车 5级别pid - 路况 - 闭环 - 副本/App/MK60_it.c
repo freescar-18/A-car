@@ -108,7 +108,7 @@ void PORTA_IRQHandler(void)
             ADC_Maxing[2] = flash_read(SECTOR_NUM, 8, uint16);  //读取16位
             ADC_Maxing[3] = flash_read(SECTOR_NUM, 12, uint16);  //读取16位 2字节
         }
-        adc_test = 1;
+       adc_test = 1;
         ones = 1;
         if(tab == 0) tab = 1;//切换键
         else tab = 0;
@@ -225,7 +225,7 @@ void PORTE_IRQHandler(void)
 
         /*  以下为用户任务  */
         beep_on();
-        last_stop = 1; //最终停车标记
+       // last_stop = 1; //最终停车标记
 
         /*  以上为用户任务  */
     }

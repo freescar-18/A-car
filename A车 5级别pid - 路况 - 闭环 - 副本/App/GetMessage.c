@@ -153,9 +153,11 @@ void ADCerror_diff(void)
   
       fe_last = fe;  //记录上一次的值  (ADC_Normal[0] * ADC_Normal[0])
     //  fe = (ADC_Normal[2] - ADC_Normal[1]) * 100;  //直接算两个电感偏差，放大100倍  (ADC_Normal[3] * ADC_Normal[3])
-      fe1 =  sqrt( ADC_Normal[2] * ADC_Normal[2] + ADC_Normal[3] * ADC_Normal[3] );
+      fe1 =  sqrt(  ADC_Normal[2] * ADC_Normal[2] + ADC_Normal[3] * ADC_Normal[3] );
       fe2 =  sqrt(  ADC_Normal[1] * ADC_Normal[1] + ADC_Normal[0] * ADC_Normal[0] );
       fe = (int)(( (sqrt(fe1) - sqrt(fe2)) / ( fe1 + fe2 ) ) * 100);
+       if( fe < -100) fe = -100;
+       if( fe > 100 ) fe = 100;
       fec = fe - fe_last;  //算出变化率
       
    // fe = 0.65 * (ADC_Normal[2] - ADC_Normal[1]) + 0.35 * (ADC_Normal[3] - ADC_Normal[0]);

@@ -60,7 +60,7 @@ unsigned short CRC_CHECK(unsigned char *databuf,unsigned char CRC_CNT)
   for(i=0;i<4;i++)
  {
 
-  temp[i] = (int)OutData[i];
+  temp[i] = (int)OutData[i]; 
   temp1[i] = (unsigned int)temp[i];
 
   }

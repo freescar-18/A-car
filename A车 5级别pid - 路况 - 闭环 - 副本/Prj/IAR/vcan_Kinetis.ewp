@@ -6389,6 +6389,12 @@
     <group>
         <name>test</name>
         <file>
+            <name>$PROJ_DIR$\..\..\App\start&amp;stop.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\App\start&amp;stop.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\App\test.c</name>
         </file>
         <file>

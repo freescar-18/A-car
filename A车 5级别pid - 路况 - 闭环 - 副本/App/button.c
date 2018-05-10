@@ -154,8 +154,8 @@ void PORTE_IRQHandler(void)
         PORTE_ISFR  = (1 << n);        //写1清中断标志位
 
         /*  以下为用户任务  */
-        beep_on();
-        last_stop = 1; //最终停车标记
+        //beep_on();
+        //last_stop = 1; //最终停车标记
 
         /*  以上为用户任务  */
     }
@@ -178,7 +178,7 @@ void PORTC_IRQHandler(void)
       {
           PORTC_ISFR  = (1 << m);        //写1清中断标志位
            /*  以下为用户任务  */
-          car_dis_flag = 1;
+         // car_dis_flag = 1;  //检测到高电平，开启超声波识别位
           car_dis_ms = 0;
           /*  以上为用户任务  */
       }

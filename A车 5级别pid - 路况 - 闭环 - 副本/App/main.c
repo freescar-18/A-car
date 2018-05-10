@@ -29,10 +29,9 @@ extern void OutPut_Data_test(void);
  */
 void main()
 {   
-    //gpio_init (PTD15, GPO,0); 
+    gpio_init (PTD15, GPO,0); 
     System_Initialization(); //初始化
     ISR_Initialization();  //中断初始化
-    //gpio_init (PTD15, GPO,0); 
     
     adc_test = 0; 
     while(adc_test == 0)
@@ -51,14 +50,15 @@ void main()
     port_init(PTB18, ALT1 | IRQ_RISING | PULLUP );
     set_vector_handler(PORTB_VECTORn ,PORTB_IRQHandler);
     enable_irq (PORTB_IRQn);*/
-    
-    
+  
    // 设置中断优先级  越小越优先 15个级别
-    set_irq_priority(PORTA_IRQn,0); 
-    set_irq_priority(PORTB_IRQn,1);
-    set_irq_priority(PORTE_IRQn,2);
-    set_irq_priority(PIT1_IRQn,3);
-    set_irq_priority(PIT0_IRQn,4);
+    set_irq_priority(PIT2_IRQn,0);
+    set_irq_priority(PORTC_IRQn,1);
+    set_irq_priority(PORTB_IRQn,2);
+    set_irq_priority(PORTA_IRQn,3);
+    set_irq_priority(PORTE_IRQn,4);
+    set_irq_priority(PIT1_IRQn,5);
+    set_irq_priority(PIT0_IRQn,6);
     
     DisableInterrupts;
     DELAY_MS(10);
@@ -83,7 +83,7 @@ void main()
      // test_max_ADC();
     //   OutPut_Data_test();//示波器调试  
        
-     Freecars_scope();//多通道示波器调试
+    // Freecars_scope();//多通道示波器调试
        
      //  gpio_turn(PTD15);   
    //   OutPut_Data_test_sscom();//串口助手调试  

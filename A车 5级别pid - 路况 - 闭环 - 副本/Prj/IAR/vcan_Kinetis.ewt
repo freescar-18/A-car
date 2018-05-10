@@ -6943,6 +6943,12 @@
             <name>$PROJ_DIR$\..\..\App\AllFunction.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\App\button.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\App\button.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\App\main.c</name>
         </file>
         <file>

@@ -53,6 +53,7 @@ byte hello[][28] = {
 extern uint8 level;
 extern uint16 cross;
 extern uint16 cross_pass;
+extern uint16 car_dis;
 
 /*******************************************************************************
  *  @brief      beep_onº¯Êý

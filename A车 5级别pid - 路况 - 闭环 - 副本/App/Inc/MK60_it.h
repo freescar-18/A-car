@@ -15,10 +15,6 @@ void PIT0_IRQHandler(void);  //PIT0中断服务函数
 void PIT1_IRQHandler(void);  //PIT1中断服务函数
 void PIT2_IRQHandler(void);  //PIT2中断服务函数
 void PIT3_IRQHandler(void);  //PIT3中断服务函数
-void PORTE_IRQHandler(void);  //PORTE的参考中断服务函数
-void PORTC_IRQHandler(void);
-void PORTB_IRQHandler(void);
-void PORTA_IRQHandler(void);
 
 /****************************  宏定义  ****************************************/
 

@@ -16,6 +16,7 @@ int8 times = 0; //定时停车标志位 PIT0定时器
 uint8 car_dis_flag = 0; //高电平开始标记位
 uint16 car_dis = 0;  //超声波测距距离 单位cm
 uint8 car_dis_ms = 0; //超声波测高电平的时间 单位ms
+char bluetooth_data=0;//接收到的数据存在这个变量
 
 /******************************************************************************* 
  *  @brief      PIT0中断服务函数
@@ -67,7 +68,7 @@ void PIT2_IRQHandler(void)
                 car_dis_ms += 5;
             else
             {
-              car_dis = 34 * car_dis_ms; //算出超声波距离
+              car_dis = 34 * car_dis_ms; //算出超声波距离  mm
                 car_dis_flag = 0; //重置标记位
             }
         }        
@@ -88,5 +89,24 @@ void PIT3_IRQHandler(void)
 }
 
 
+/*!
+ *  @brief      UART3测试中断服务函数
+ *  @since      v5.0
+ *  @warning    蓝牙通讯函数，使用必须开中断才能使用 ,在你需要发送的地方用uart_putchar函数，如果uart_putchar(UART4,'1');
+ *  Sample usage:  set_vector_handler(UART3_RX_TX_VECTORn , uart3_test_handler);    //把 uart3_handler 函数添加到中断向量表，不需要我们手动调用
+ */
+void uart4_test_handler(void)
+{
+
+    if(uart_query(UART4) == 1)   //接收数据寄存器满
+    {
+      uart_getchar(UART4, &bluetooth_data);//等待接收完//*bluetooth_data = UART_D_REG(UARTN[uratn]);///////////bluetooth_data是一个char型变量，你喜欢干啥就干啥
+      if(bluetooth_data ==  '1') 
+      {
+         beep_on();DELAY();beep_off();/////////////////////////你喜欢干啥就干啥
+         bluetooth_data = 0; //////////////////这里只是为了下次蜂鸣器不响，你想干啥就干啥
+      }
+    }
 
 
+}

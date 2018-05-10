@@ -215,7 +215,7 @@ void Freecars_scope(void)
   int i;
    //100ms发送一次数据（所有通道）到示波器，也可以使用delayms(100)的方式
      // DELAY_MS(5);
-       OutData[0] = adc_once(ADC1_SE11, ADC_12bit);//ADC_Value[0];//(int)speed_forecast_left;//ADC_Value[0];//adc_once(ADC1_SE10, ADC_12bit);
+       OutData[0] = adc_once(ADC1_SE10, ADC_12bit);//ADC_Value[0];//(int)speed_forecast_left;//ADC_Value[0];//adc_once(ADC1_SE10, ADC_12bit);
        OutData[1] = adc_once(ADC1_SE12, ADC_12bit);//ADC_Value[1];//speedctrl_left;//ADC_Value[1];//;
        OutData[2] = adc_once(ADC1_SE14, ADC_12bit);//ADC_Value[2];//speed_now_left;//ADC_Value[2];//;
        OutData[3] = adc_once(ADC1_SE15, ADC_12bit);//ADC_Value[3];

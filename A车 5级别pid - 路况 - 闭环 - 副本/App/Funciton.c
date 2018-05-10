@@ -101,10 +101,10 @@ void oled_view(void)
        LED_PrintValueF(0,1,ADC_Normal[1],3);  //显示蓝色电感归一化后值
        LED_PrintValueF(0,2,ADC_Normal[2],3);  //显示褐色电感归一化后值
        LED_PrintValueF(0,3,ADC_Normal[3],3);  //显示橙色电感归一化后值
-       LED_PrintShort(90,0,ADC_Maxing[0]); 
-       LED_PrintShort(90,1,ADC_Maxing[1]); 
-       LED_PrintShort(90,2,ADC_Maxing[2]); 
-       LED_PrintShort(90,3,ADC_Maxing[3]); 
+       LED_PrintShort(90,0,ADC_Value[0]); 
+       LED_PrintShort(90,1,ADC_Value[1]); 
+       LED_PrintShort(90,2,ADC_Value[2]); 
+       LED_PrintShort(90,3,ADC_Value[3]); 
         LED_PrintValueF(45,3,fe,3);  //显示输入的误差
          LED_PrintShort(45,4,level); 
     //    LED_PrintValueF(50,6,steer_P,3);  //显示输出的 P 值

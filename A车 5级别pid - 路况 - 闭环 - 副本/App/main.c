@@ -83,7 +83,7 @@ void main()
      // test_max_ADC();
     //   OutPut_Data_test();//示波器调试  
        
-    //  Freecars_scope();//多通道示波器调试
+     Freecars_scope();//多通道示波器调试
        
      //  gpio_turn(PTD15);   
    //   OutPut_Data_test_sscom();//串口助手调试  

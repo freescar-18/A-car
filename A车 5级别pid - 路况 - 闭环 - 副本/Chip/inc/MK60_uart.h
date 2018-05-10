@@ -47,7 +47,9 @@ extern char   uart_query     (UARTn_e);                          //²éÑ¯ÊÇ·ñ½ÓÊÕµ
 
 
 //·¢ËÍÏà¹Ø´úÂë
-extern void uart_putchar   (UARTn_e, char ch);                 //·¢ËÍ1¸ö×Ö½Ú
+extern void uart_putchar   (UARTn_e, char ch);   
+extern void uart_putchar_toscope (UARTn_e uratn, uint8 ch);//·¢ËÍ1¸ö×Ö½Ú
+
 extern void uart_putbuff   (UARTn_e , uint8 *buff, uint32 len);//·¢ËÍlen¸ö×Ö½Úbuff
 extern void uart_putstr    (UARTn_e , const uint8 *str);       //·¢ËÍ×Ö·û´®
 

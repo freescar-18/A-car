@@ -188,19 +188,19 @@ void sendDataToScope(void)
 {
   uint8 i,sum=0; 
   //使用轮询的方式发送数据，当数据未发送，程序停在此处直到发送完成
-  uart_putchar(UART4,251) ;//USendOneByte(FreeCarsUARTPort,251);
-  uart_putchar(UART4,109) ;//USendOneByte(FreeCarsUARTPort,109);
-  uart_putchar(UART4,37) ;//USendOneByte(FreeCarsUARTPort,37);
+  uart_putchar_toscope(UART4,251) ;//USendOneByte(FreeCarsUARTPort,251);
+  uart_putchar_toscope(UART4,109) ;//USendOneByte(FreeCarsUARTPort,109);
+  uart_putchar_toscope(UART4,37) ;//USendOneByte(FreeCarsUARTPort,37);
 
   sum+=(251);      //全部数据加入校验
   sum+=(109);
   sum+=(37);
   for(i=0;i<FreeCarsDataNum;i++)
   {
-     uart_putchar(UART4,uSendBuf[i]) ;    //USendOneByte(FreeCarsUARTPort,uSendBuf[i]);
+     uart_putchar_toscope(UART4,uSendBuf[i]) ;    //USendOneByte(FreeCarsUARTPort,uSendBuf[i]);
     sum+=uSendBuf[i];         //全部数据加入校验
   }
-   uart_putchar(UART4,sum);// USendOneByte(FreeCarsUARTPort,sum);
+   uart_putchar_toscope(UART4,sum);// USendOneByte(FreeCarsUARTPort,sum);
 }
 /*******************************************************************************
  *  @brief      Freecars_scope

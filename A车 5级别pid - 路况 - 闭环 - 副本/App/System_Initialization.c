@@ -144,7 +144,7 @@ void System_Initialization(void)
     FTM_Initialization();
     ADC_Initialization(); 
     OLED_Initialization();
-    uart_init (UART5, 9600);//串口初始化
+    uart_init (UART4, 9600);//串口初始化
 }
 
 /*!

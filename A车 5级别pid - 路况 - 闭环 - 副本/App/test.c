@@ -90,7 +90,7 @@ void test_ADC(void)
     count_test = ftm_quad_get(FTM2);  //
     lptmr_test = lptmr_pulse_get();
     //var_test1 = adc_once(ADC1_SE10, ADC_12bit);
-    var_test2 = adc_once(ADC1_SE11, ADC_12bit);
+    var_test2 = adc_once(ADC1_SE10, ADC_12bit);
     var_test3 = adc_once(ADC1_SE12, ADC_12bit);
     //var_test4 = adc_once(ADC1_SE13, ADC_12bit);
     var_test5 = adc_once(ADC1_SE14, ADC_12bit);
@@ -352,7 +352,7 @@ void test_steering(void)
  ******************************************************************************/
 void test_max_ADC(void)
 {
-    ADC_GetMessage[0][1] = adc_once(ADC1_SE11, ADC_12bit); //Green
+    ADC_GetMessage[0][1] = adc_once(ADC1_SE10, ADC_12bit); //Green
     ADC_GetMessage[1][1] = adc_once(ADC1_SE12, ADC_12bit); //blue
     ADC_GetMessage[2][1] = adc_once(ADC1_SE14, ADC_12bit); //brown
     ADC_GetMessage[3][1] = adc_once(ADC1_SE15, ADC_12bit);  //orange

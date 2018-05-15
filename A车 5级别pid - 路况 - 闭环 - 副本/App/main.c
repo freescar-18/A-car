@@ -85,7 +85,7 @@ void main()
       //  test_steering();
     // test_ADC();
      // test_max_ADC();
-    //   OutPut_Data_test();//示波器调试  
+       OutPut_Data_test();//示波器调试  
        
     // Freecars_scope();//多通道示波器调试
        

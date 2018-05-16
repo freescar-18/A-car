@@ -56,7 +56,7 @@ extern float speed_power;
 extern uint8 none_steerctrl; 
 extern int16 speedctrl_left,speedctrl_right; 
 int16 speedctrl_left_opp,speedctrl_right_opp; 
-uint8 last_stop = 0;  //终点停车标记位   0为不是停车状态
+uint16 last_stop = 0;  //终点停车标记位   0为不是停车状态
 extern float speed_forecast; //预测将要达到的速度（PWM）
 extern float speed_forecast_error; //预测将要达到的速度的偏差（差速）
 

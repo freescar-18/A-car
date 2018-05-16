@@ -162,7 +162,7 @@ void ISR_Initialization(void)
     
     enable_irq(PIT0_IRQn); // 使能PIT0中断
    // enable_irq(PIT1_IRQn); // 使能PIT1中断
-    enable_irq(PIT2_IRQn); // 使能PIT2中断
+    //enable_irq(PIT2_IRQn); // 使能PIT2中断
    // enable_irq(PIT3_IRQn); // 使能PIT3中断
     enable_irq (PORTE_IRQn); //使能PORTE中断
     enable_irq (PORTA_IRQn); //使能PORTE中断

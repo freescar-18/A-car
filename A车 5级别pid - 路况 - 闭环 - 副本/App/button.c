@@ -28,10 +28,13 @@ extern uint8 flag_csb = 0;
 int8 ones = 0;//只能写一次数据！！
 int8 tab = 0;
 extern int8 times; //定时停车标志位 PIT0定时器
-extern uint8 last_stop;//终点停车标记 大于1为停车
+extern uint16 last_stop;//终点停车标记 大于1为停车
 extern uint8 car_dis_flag; //高电平开始标记位
 extern uint16 car_dis;  //超声波测距距离 单位cm
 extern uint8 car_dis_ms; //超声波测高电平的时间 单位ms
+extern uint16 start_flag;
+extern uint8 level;
+extern uint16 dis_right,dis_left;
 
 
 /*******************************************************************************
@@ -57,7 +60,7 @@ void PORTA_IRQHandler(void)
             ADC_Maxing[2] = flash_read(SECTOR_NUM, 8, uint16);  //读取16位
             ADC_Maxing[3] = flash_read(SECTOR_NUM, 12, uint16);  //读取16位 2字节
         }
-       adc_test = 1;
+        adc_test = 1;
         ones = 1;
         if(tab == 0) tab = 1;//切换键
         else tab = 0;
@@ -108,13 +111,16 @@ void PORTB_IRQHandler(void)
         PORTB_ISFR  = (1 << n);        //写1清中断标志位
 
         /*  以下为用户任务  */
-         flag = 0;
+         flag = 0; //清空停车位
           ones = 1;
          jishu = 0;
-         times = 0;//清空停车时间计时
+         times = 0;//清空定时停车时间计时
          huandao_flag_a = 0; huandao_flag_b = 0;//huandao_flag_c = 0; 
          huandao_flag_d = 0; huandao_flag_e = 0; //huandao_flag_f = 0;
-         last_stop = 0; //终点停车标记位恢复，变为0
+         last_stop = 0;  //清空停车，即重启
+         level = 0; //清空等级
+         start_flag = 0; //清空发车
+         dis_right = 0; //清空车移动的距离
          DELAY_MS(300);
         /*  以上为用户任务  */
     }
@@ -179,7 +185,7 @@ void PORTC_IRQHandler(void)
           PORTC_ISFR  = (1 << m);        //写1清中断标志位
            /*  以下为用户任务  */
          // car_dis_flag = 1;  //检测到高电平，开启超声波识别位
-          car_dis_ms = 0;
+         // car_dis_ms = 0;
           /*  以上为用户任务  */
       }
 }

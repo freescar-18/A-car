@@ -131,33 +131,15 @@ void ADCnormal(void)
  ******************************************************************************/
 void ADCerror_diff(void)
 {
-    /*error_diff_last = error_diff;   
-    error_diff = ADC_Normal[2] - ADC_Normal[1];
-    if(error_diff >= 0)
-    {
-        fe = error_diff;
-    }
-    else
-    {
-        fe = -error_diff;
-    }
-    error_diff_c = error_diff - error_diff_last;
-    if(error_diff_c >= 0)
-    {
-        fec = error_diff_c;
-    }
-    else
-    {
-        fec = -error_diff_c;
-    }*/
-  
       fe_last = fe;  //记录上一次的值  (ADC_Normal[0] * ADC_Normal[0])
-    //  fe = (ADC_Normal[2] - ADC_Normal[1]) * 100;  //直接算两个电感偏差，放大100倍  (ADC_Normal[3] * ADC_Normal[3])
-      fe1 =  sqrt(  ADC_Normal[2] * ADC_Normal[2] + ADC_Normal[3] * ADC_Normal[3] );
+      fe1 =  sqrt( ADC_Normal[2] * ADC_Normal[2] + ADC_Normal[3] * ADC_Normal[3] );
       fe2 =  sqrt(  ADC_Normal[1] * ADC_Normal[1] + ADC_Normal[0] * ADC_Normal[0] );
-      fe = (int)(( (sqrt(fe1) - sqrt(fe2)) / ( fe1 + fe2 ) ) * 100);
-       if( fe < -100) fe = -100;
-       if( fe > 100 ) fe = 100;
+      fe = (int)(( (sqrt(fe1) - sqrt(fe2)) / ( fe1 + fe2 ) ) * 100);      
+/**///  if( ADC_Normal[0] > 0.5 && ADC_Normal[3] > 0.5 ) level = 40;
+/**///  if(level == 40) 
+/**/// {
+/**///      fe = -fe;
+/**///  }
       fec = fe - fe_last;  //算出变化率
       
    // fe = 0.65 * (ADC_Normal[2] - ADC_Normal[1]) + 0.35 * (ADC_Normal[3] - ADC_Normal[0]);

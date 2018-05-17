@@ -151,6 +151,9 @@ void test_motor(void)
         ADCnormal(); //采集的信息归一化
         ADCerror_diff(); //偏差法计算 误差 和 误差的变化率
        // road_check();
+        
+          Round_about();
+          
         if(none_steerctrl == 0)
         {
             fuzzy_mem_cal(); //对输入的 fe（误差） 和 fec（误差变化率） 查询隶属度
@@ -229,7 +232,7 @@ void test_motor(void)
             }
             ///////////////////////////////////////////////////////////////////////
             ////////////////////////////停车///////////////////////////////////////
-            if((ADC_Value[0] <= 10) && (ADC_Value[1] <= 10) && (ADC_Value[2] <= 10) && (ADC_Value[3] <= 10) ) //如果四个电感都偏小，则将flag变成1，然后进入下面的死循环
+            if((ADC_Value[0] <= 20) && (ADC_Value[1] <= 20) && (ADC_Value[2] <= 20) && (ADC_Value[3] <= 20) ) //如果四个电感都偏小，则将flag变成1，然后进入下面的死循环
             {                                                                                                 
               flag = 1;                                                                                       
             }

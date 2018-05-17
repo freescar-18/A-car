@@ -17,6 +17,8 @@ extern int16 speedctrl_right;
 extern int16 speed_now_left,speed_now_right;
 extern float speed_fe; 
 */
+extern float ADC_Normal[4];
+int ADC_Normal_rt[4];
 /*******************************************************************************
  *  @brief      CRC_CHECK函数
  *  @note       直接放入main中while（1)里执行               
@@ -76,7 +78,7 @@ unsigned short CRC_CHECK(unsigned char *databuf,unsigned char CRC_CNT)
 
  for(i=0;i<10;i++)
  {
- uart_putchar (UART5,(char)databuf[i]);
+ uart_putchar (UART4,(char)databuf[i]);
  }
  }
 
@@ -87,13 +89,23 @@ unsigned short CRC_CHECK(unsigned char *databuf,unsigned char CRC_CNT)
 5. * 函数返回：无符号结果值
 6. * 修改时间： 2013-2-10
 7.  移植时，移植时要注意到，send_b，OutData[]，已经在text.c文件定义*/
+extern uint8 rhd_n_flag_d,rhd_s_flag_d,chd_n_flag_b;
+extern float fe;
+
  void OutPut_Data_test(void)
  {
-  OutData[0] = 12345;//adc_once(ADC1_SE10, ADC_12bit);
-  OutData[1] = 12345;//adc_once(ADC1_SE12, ADC_12bit);
-    //var_test4 = adc_once(ADC1_SE13, ADC_12bit);
-  OutData[2] = 12345;//adc_once(ADC1_SE14, ADC_12bit);
-  OutData[3] = 12345;//adc_once(ADC1_SE15, ADC_12bit);
+  ADC_Normal_rt[0] = (int)(100*ADC_Normal[0]);//adc_once(ADC1_SE11, ADC_12bit);
+  ADC_Normal_rt[1] = (int)(100*ADC_Normal[1]);//adc_once(ADC1_SE12, ADC_12bit);
+  ADC_Normal_rt[2] = (int)(100*ADC_Normal[2]);//adc_once(ADC1_SE14, ADC_12bit);
+  ADC_Normal_rt[3] = (int)(100*ADC_Normal[3]);//adc_once(ADC1_SE15, ADC_12bit);
+  
+  //if(chd_n_flag_b == 1)  ADC_Normal_rt[0] = (int)(steerctrl - Midsteering);
+ // if(rhd_s_flag_d == 1)  ADC_Normal_rt[3] = (int)(Midsteering - steerctrl); //显示打角
+  
+  OutData[0] = ADC_Normal_rt[0];//adc_once(ADC1_SE11, ADC_12bit);
+  OutData[1] = ADC_Normal_rt[1];//adc_once(ADC1_SE12, ADC_12bit);
+  OutData[2] = ADC_Normal_rt[2];//adc_once(ADC1_SE14, ADC_12bit);
+  OutData[3] = ADC_Normal_rt[3];//adc_once(ADC1_SE15, ADC_12bit);
   OutPut_Data();
   //printf("ADC_FroBack_6[1]=%d\n",OutData[0]);
  }
@@ -140,25 +152,25 @@ void OutPut_Data_test_sscom(void)
   databuff[2]=50;
   databuff[3]=50;
  */ 
-  uart_putchar (UART5,'a');//在串口助手上显示第数据的识别符，例如：发送12345，串口上显示a12345
+  uart_putchar (UART4,'a');//在串口助手上显示第数据的识别符，例如：发送12345，串口上显示a12345
    for(l=0;l<5;l++)//发送OutData[]第一个数据//此段位发送储存的数据
    {
-     uart_putchar (UART5,(char)databuff[l*4]);
+     uart_putchar (UART4,(char)databuff[l*4]);
     }
-   uart_putchar (UART5,'b');
+   uart_putchar (UART4,'b');
    for(l=0;l<5;l++)//发送OutData[]第二个数据
    {
-     uart_putchar (UART5,(char)databuff[l*4+1]);
+     uart_putchar (UART4,(char)databuff[l*4+1]);
     }
-   uart_putchar (UART5,'c');
+   uart_putchar (UART4,'c');
    for(l=0;l<5;l++)//发送OutData[]第三个数据
    {
-     uart_putchar (UART5,(char)databuff[l*4+2]);
+     uart_putchar (UART4,(char)databuff[l*4+2]);
     }
-   uart_putchar (UART5,'d');
+   uart_putchar (UART4,'d');
    for(l=0;l<5;l++)//发送OutData[]第四个数据
    {
-     uart_putchar (UART5,(char)databuff[l*4+3]);
+     uart_putchar (UART4,(char)databuff[l*4+3]);
     }
 }
 

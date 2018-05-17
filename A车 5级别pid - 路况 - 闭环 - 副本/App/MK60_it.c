@@ -29,7 +29,7 @@ extern uint16 last_stop;
  *  @note
  *  @warning
  ******************************************************************************/
-void PIT0_IRQHandler(void)
+void    PIT0_IRQHandler(void)
 {
    /******  10s 停车  *******/
   /* if(times < 5)  //参数即为时间  如 tiems < 10 ，为 10s 自动停车

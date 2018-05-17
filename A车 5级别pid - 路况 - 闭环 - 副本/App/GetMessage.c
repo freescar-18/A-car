@@ -55,13 +55,21 @@ uint cross_right = 0;
 
 uint8 none_speedctrl = 0; 
 
-uint8 rhd_n_flag=0,rhd_n_flag_a=0,rhd_n_flag_b=0,rhd_n_flag_c=0,rhd_n_flag_d=0,rhd_n_flag_e=0,rhd_n_flag_f=0,rhd_n_flag_g=0;  //逆向入环岛标志
-uint8 rhd_s_flag=0,rhd_s_flag_a=0,rhd_s_flag_b=0,rhd_s_flag_c=0,rhd_s_flag_d=0,rhd_s_flag_e=0,rhd_s_flag_f=0,rhd_s_flag_g=0;  //顺向入环岛标志
+/*uint8 n_flag=0,rhd_n_flag=0,rhd_n_flag_a=0,rhd_n_flag_b=0,rhd_n_flag_c=0,rhd_n_flag_d=0,rhd_n_flag_e=0,rhd_n_flag_f=0,rhd_n_flag_g=0;  //逆向入环岛标志
+uint8 s_flag=0,rhd_s_flag=0,rhd_s_flag_a=0,rhd_s_flag_b=0,rhd_s_flag_c=0,rhd_s_flag_d=0,rhd_s_flag_e=0,rhd_s_flag_f=0,rhd_s_flag_g=0;  //顺向入环岛标志
 uint8 chd_n_flag=0,chd_n_flag_a=0,chd_n_flag_b=0;                                //逆向出环岛标志
 uint8 chd_s_flag=0,chd_s_flag_a=0,chd_s_flag_b=0;                                //顺向出环岛标志
 int Island_length = 0; 
-
-
+uint8 shizi_flag=0;
+*/
+uint8 n_before_is=0,n_before_is_a=0,n_before_is_b=0,n_before_is_c=0;
+uint8 n_enter_is=0,n_enter_is_a=0,n_enter_is_b=0;
+uint8 n_inside_is=0,n_inside_is_a=0;
+uint8 n_exit_is=0,n_exit_is_over=0;
+uint8 s_before_is=0,s_before_is_a=0,s_before_is_b=0,s_before_is_c=0;
+uint8 s_enter_is=0,s_enter_is_a=0,s_enter_is_b=0;
+uint8 s_inside_is=0,s_inside_is_a=0;
+uint8 s_exit_is=0,s_exit_is_over=0;
 /*******************************************************************************
  *  @brief      MessageProcessing函数
  *  @note       ADC信息采集处理，无归一化 
@@ -378,290 +386,222 @@ void Road_Id_Get()
  ******************************************************************************/
 void Round_about() 
 {
-    ///////////////////////////////////////////环岛逆向入岛////////////////////////////////
+  //环岛逆向/////
+  if((n_before_is == 0)&&(n_enter_is == 0)&&(s_inside_is == 0)&&(n_exit_is == 0)&&(n_exit_is_over == 0)&&(ADC_Normal[1] >= 0.500)&&(ADC_Normal[2] >= 0.900))
+  {
+    n_before_is = 1;   //入岛前
+  }
+  if(n_before_is == 1)   //入岛前区域  beep
+  {
+     speed_power = 0.5;
+     //////////寻找第一个波峰
+     if(( n_before_is_a == 0)&&( n_before_is_b == 0)&&(ADC_Normal[3] >= 0.200))
+     {
+       n_before_is_a = 1;
+       beep_on();
+     }
+     //////////寻找第一个波谷
+     if((n_before_is_a == 1)&&(n_before_is_b == 0)&&(ADC_Normal[3] <= 0.100))
+     {
+       n_before_is_a = 0;
+       n_before_is_b = 1;
+       beep_off();
+     }
+     //////////寻找第二个波谷
+     if((n_before_is_b == 1)&&(ADC_Normal[3] >= 0.100))
+     {
+       n_before_is_b = 0;
+       n_before_is = 0;
+       n_enter_is = 1;      //入岛点
+     }
+  }
+  if(n_enter_is == 1)     //入岛过程   beep
+  {
+     speed_power = 0.1;
+     beep_on();
+     //////////策略一：换误差算法///////// 
+     fe_last = fe;                //入岛误差算法
+     fe = (int)(( (sqrt(ADC_Normal[2]) - sqrt(ADC_Normal[3])) / ( ADC_Normal[2] + ADC_Normal[3] ) ) * 100);
+     fec = fe - fe_last;
+     //////////避免打角太小//////////
+     if(steerctrl >= Midsteering + 120)  
+        n_enter_is_a = 1;
+     if((n_enter_is_a == 1)&&(steerctrl <= Midsteering + 60))
+     {     none_steerctrl = 1;
+           steerctrl = Maxsteering;
+     }
+    
+   /*  //////////策略二：打死角/////////////
+     none_steerctrl = 1;
+     steerctrl = Maxsteering ;
+   */  
+     //////////避免提早结束入岛///////  
+     if(ADC_Normal[1] >= 0.800)
+        n_enter_is_b = 1;
+     ///////////入岛结束点////////////
+     if((n_enter_is_b == 1)&&((ADC_Normal[1] < 0.600)||(ADC_Normal[2] < 0.600)))
+     {
+       speed_power = 1.0;
+       beep_off();
+       none_steerctrl = 0;
        
-        if((rhd_n_flag == 0)&&(ADC_Normal[1] >= 0.500)&&(ADC_Normal[2] >= 0.900))  //环岛区域判断
-        {
-             rhd_n_flag_a = 1;                                                     //进入环岛区域
-             rhd_n_flag = 1;
-        }
-        if(rhd_n_flag_a == 1)
-        {
-             if(ADC_Normal[3] >= 0.200)                                            //环岛路口判断
-             {
-                  rhd_n_flag_a = 0; 
-                  rhd_n_flag_b = 1;                                                //到达环岛路口
-                  beep_on();
-             }
-        }
-        if(rhd_n_flag_b==1)       
-        {
-              speed_power = 0.8;                                                   //入岛前减速
-              if(ADC_Normal[3] <= 0.100)                                           //环岛电感低谷判断
-              {
-                 rhd_n_flag_b = 0;  
-                 rhd_n_flag_c = 1;                                                 //环岛交叉点
-                 beep_off();
-               } 
-        }     
-        if(rhd_n_flag_c == 1)   
-        {
-              speed_power = 0.8;
-              if(ADC_Normal[3] >= 0.100)                                           //环岛电感低谷判断
-              {
-                rhd_n_flag_c = 0;  
-                rhd_n_flag_d = 1;                                                  //入岛点
-              }     
-        }
-        if(rhd_n_flag_d == 1)
-        {
-              speed_power = 0.1;                                                   //入岛减速   
-              beep_on();
-            
-              //////////换误差算法策略/////////（逆向可进） 
-              fe_last = fe;                //入岛误差算法
-              fe = (int)(( (sqrt(ADC_Normal[2]) - sqrt(ADC_Normal[3])) / ( ADC_Normal[2] + ADC_Normal[3] ) ) * 100);
-              fec = fe - fe_last;                 
-              
-              if(steerctrl >= Midsteering + 120)  
-                 rhd_n_flag_e = 1;
-              if((rhd_n_flag_e == 1)&&(steerctrl <= Midsteering + 60))
-              {
-                  none_steerctrl = 1;
-                  steerctrl = Midsteering + 150;
-              }
-              //避免打角太小  
-                
-              if(ADC_Normal[3] >= 0.200)  
-                rhd_n_flag_f = 1;              
-              if((rhd_n_flag_f == 1)&&(ADC_Normal[1] >= 0.800))
-                rhd_n_flag_g = 1;
-              //避免提早结束入岛    
-              
-              if((rhd_n_flag_g == 1)&&((ADC_Normal[1] < 0.600)||(ADC_Normal[2] < 0.600)))   //成功入岛
-              {
-                 rhd_n_flag_a = 0;
-                 rhd_n_flag_b = 0;
-                 rhd_n_flag_c = 0;
-                 rhd_n_flag_d = 0;
-                 rhd_n_flag_e = 0;
-                 rhd_n_flag_f = 0;
-                 rhd_n_flag_g = 0;
-                 
-                 none_steerctrl = 0;
-                 speed_power = 1.0; 
-                 beep_off();
-              } 
-             
-              
-              ///////////////直接打死角策略///////(逆向大环会内切)
-           /*   none_steerctrl = 1;
-              steerctrl = Maxsteering ;
-              
-              
-              if(ADC_Normal[1] >= 0.800)
-                rhd_n_flag_e = 1;
-               if((rhd_n_flag_e == 1)&&(ADC_Normal[1] < 0.600)||(ADC_Normal[2] < 0.600))
-              {
-                rhd_n_flag_d = 0;
-                rhd_n_flag_e = 0;
-
-                none_steerctrl = 0;
-                 speed_power = 1.0; 
-                 beep_off();
-              }
-            */  
-        }  
-           
- ///////////////////////////////////////////环岛顺向入岛////////////////////////////////
+       n_enter_is_a = 0;
+       n_enter_is_b = 0;
+       n_enter_is = 0;
        
-        if((rhd_s_flag == 0)&&(ADC_Normal[2] >= 0.500)&&(ADC_Normal[1] >= 0.900))  //环岛区域判断
-        {
-           rhd_s_flag = 1;  
-           rhd_s_flag_a = 1;                                                       //进入环岛区域
-        }
-        if(rhd_s_flag_a == 1)
-        {
-             if(ADC_Normal[0] >= 0.200)                                            //环岛路口判断
-             {
-                  rhd_s_flag_a = 0; 
-                  rhd_s_flag_b = 1;                                                //到达环岛路口
-                  beep_on();
-             }
-        }
-        if(rhd_s_flag_b==1)       
-        {
-              speed_power = 0.8;                                                   //入岛前减速
-              if(ADC_Normal[0] <= 0.100)                                          //环岛电感低谷判断
-              {
-                 rhd_s_flag_b = 0;  
-                 rhd_s_flag_c = 1;                                                 //环岛交叉点
-                 beep_off();
-               } 
-        }     
-        if(rhd_s_flag_c == 1)   
-        {
-              speed_power = 0.8;
-              if(ADC_Normal[0] >= 0.100)                                          //环岛电感低谷判断
-              {
-                rhd_s_flag_c = 0;  
-                rhd_s_flag_d = 1;                                                   //入岛点
-              }     
-        }
-        if(rhd_s_flag_d == 1)
-        {
-              speed_power = 0.1;                                                   //入岛减速   
-               beep_on();         
+       n_inside_is = 1;       
+     }
               
-              //////////换误差算法策略///////// （顺向打不进去）
-      /*        fe_last = fe;                //入岛误差算法
-              fe = (int)(( (sqrt(ADC_Normal[0]) - sqrt(ADC_Normal[1])) / ( ADC_Normal[1] + ADC_Normal[0] ) ) * 100);
-              fec = fe - fe_last;                 
+  }
+  if(n_inside_is == 1)  //岛内过程
+  {
+    speed_power = 1.0;
+    none_steerctrl = 0;
+    //beep_on();
+    if((n_inside_is_a == 0)&&(ADC_Normal[3] <= 0.300))
+    {
+      n_inside_is_a = 1;
+    }
+    if((n_inside_is_a == 1)&&(ADC_Normal[3] >= 0.700))
+    {
+      n_inside_is_a = 0;
+      n_inside_is = 0;
+      n_exit_is = 1; 
+      //beep_off();
+    }
+  }
+  if(n_exit_is == 1)       //出岛过程   beep
+  {
+     speed_power = 0.5;
+     beep_on();
+     ////////出岛误差算法//////////  
+     fe_last = fe;                    
+     fe = (int)( (ADC_Normal[3] - ADC_Normal[0] ) * 100);
+     fec = fe - fe_last;
+     ////////出岛结束点////////////
+     if(ADC_Normal[3] <= 0.700)
+     {
+       speed_power = 1.0;
+       beep_off();
+       n_exit_is = 0;
+       n_exit_is_over = 1;  //
+     }
+  }
+  if(n_exit_is_over == 1)   //离开环岛区域
+  {
+    speed_power = 1.0;
+    none_steerctrl = 0;
+    if((ADC_Normal[0] <= 0.050)&&(ADC_Normal[3] <= 0.050))
+      n_exit_is_over = 0;
+  }
+    
+    //环岛顺向/////
+  if((s_before_is == 0)&&(s_enter_is == 0)&&(s_inside_is == 0)&&(s_exit_is == 0)&&(s_exit_is_over == 0)&&(ADC_Normal[2] >= 0.500)&&(ADC_Normal[1] >= 0.900))
+  {
+    s_before_is = 1;   //入岛前
+  }
+  if(s_before_is == 1)   //入岛前区域  beep
+  {
+     speed_power = 0.5;
+     //////////寻找第一个波峰
+     if(( s_before_is_a == 0)&&( s_before_is_b == 0)&&(ADC_Normal[0] >= 0.200))
+     {
+       s_before_is_a = 1;
+       beep_on();
+     }
+     //////////寻找第一个波谷
+     if((s_before_is_a == 1)&&(s_before_is_b == 0)&&(ADC_Normal[0] <= 0.100))
+     {
+       s_before_is_a = 0;
+       s_before_is_b = 1;
+       beep_off();
+     }
+     //////////寻找第二个波谷
+     if((s_before_is_b == 1)&&(ADC_Normal[0] >= 0.100))
+     {
+       s_before_is_b = 0;
+       s_before_is = 0;
+       s_enter_is = 1;      //入岛点
+     }
+  }
+  if(s_enter_is == 1)     //入岛过程  beep
+  {
+     speed_power = 0.1;
+     beep_on();
+   /*  //////////策略一：换误差算法///////// 
+     fe_last = fe;                //入岛误差算法
+     fe = (int)(( (sqrt(ADC_Normal[1]) - sqrt(ADC_Normal[0])) / ( ADC_Normal[1] + ADC_Normal[0] ) ) * 100);
+     fec = fe - fe_last;
+     //////////避免打角太小//////////
+     if(steerctrl <= Midsteering - 120)  
+        s_enter_is_a = 1;
+     if((s_enter_is_a == 1)&&(steerctrl >= Midsteering - 60))
+     {     none_steerctrl = 1;
+           steerctrl = Minsteering;
+     }
+    */
+     //////////策略二：打死角/////////////
+     none_steerctrl = 1;
+     steerctrl = Minsteering ;
+     
+     //////////避免提早结束入岛///////  
+     if(ADC_Normal[2] >= 0.800)
+        s_enter_is_b = 1;
+     ///////////入岛结束点////////////
+     if((s_enter_is_b == 1)&&((ADC_Normal[1] < 0.600)||(ADC_Normal[2] < 0.600)))
+     {
+       speed_power = 1.0;
+       beep_off();
+       none_steerctrl = 0;
+       
+       s_enter_is_a = 0;
+       s_enter_is_b = 0;
+       s_enter_is = 0;      
+       s_inside_is = 1;       
+     }
               
-              if(steerctrl <= Midsteering - 120)  //避免打角太小
-                 rhd_s_flag_e = 1;
-              if((rhd_s_flag_e == 1)&&(steerctrl >= Midsteering - 60))
-              {
-                  none_steerctrl = 1;
-                  steerctrl = Midsteering - 150;
-              }
-                
-                
-              if(ADC_Normal[0] >= 0.100)  
-                rhd_s_flag_f = 1;              
-              if((rhd_s_flag_f == 1)&&(ADC_Normal[2] >= 0.800))
-                rhd_s_flag_g = 1;
-              //避免提早结束入岛    
-              
-              if((rhd_s_flag_g == 1)&&((ADC_Normal[1] < 0.600)||(ADC_Normal[2] < 0.600)))   //成功入岛
-              {
-                 rhd_s_flag_a = 0;
-                 rhd_s_flag_b = 0;
-                 rhd_s_flag_c = 0;
-                 rhd_s_flag_d = 0;
-                 rhd_s_flag_e = 0;
-                 rhd_s_flag_f = 0;
-                 rhd_s_flag_g = 0;
-                 
-                 none_steerctrl = 0;
-                 speed_power = 1.0; 
-                 beep_off();
-              } 
-          */   
-              
-              ///////////////直接打死角策略///////(可以进去)
-              none_steerctrl = 1;
-              steerctrl = Minsteering ;
-              
-              
-              if(ADC_Normal[2] >= 0.800)
-                rhd_s_flag_e = 1;
-               if((rhd_s_flag_e == 1)&&(ADC_Normal[1] < 0.600)||(ADC_Normal[2] < 0.600))
-              {
-                rhd_s_flag_d = 0;
-                rhd_s_flag_e = 0;
-
-                none_steerctrl = 0;
-                 speed_power = 1.0; 
-                 beep_off();
-              }   
-        }  
-          
-  
-
-        
-/////////////////////////////逆向出岛//////////            
-        if((rhd_n_flag == 1)&&(ADC_Normal[3] >= 0.700)&&((ADC_Normal[1]-ADC_Normal[0])*(ADC_Normal[1]-ADC_Normal[0]) <= 0.250))
-        {
-          chd_n_flag_a = 1;
-          beep_on();
-        }
-        if(chd_n_flag_a == 1)                      //出岛
-        {
-            speed_power = 0.8;                    //出岛减速   
-              
-            fe_last = fe;                        //出岛误差算法
-            //fe = (int)(( (sqrt(ADC_Normal[3]) - sqrt(ADC_Normal[0])) / ( ADC_Normal[3] + ADC_Normal[0] ) ) * 100);
-            fe = (int)( (ADC_Normal[3] - ADC_Normal[0] ) * 100);
-            fec = fe - fe_last;     
-          
-          if(ADC_Normal[3] <= 0.700)               
-          {
-             chd_n_flag_a = 0;
-             chd_n_flag = 1;                      //出岛结束
-             
-             beep_off();
-             speed_power = 1.0;                    //释放减速
-          }
-          if((chd_n_flag == 1)&&(ADC_Normal[0] <= 0.050)&&(ADC_Normal[3] <= 0.050))   //离开环岛区域
-          {
-              rhd_n_flag_a = 0;
-              rhd_n_flag_b = 0;
-              rhd_n_flag_c = 0;
-              rhd_n_flag_d = 0;
-              rhd_n_flag_e = 0;
-              rhd_n_flag_f = 0;
-              rhd_n_flag_g = 0;
-              chd_n_flag_a = 0;
-            
-              rhd_n_flag = 0;
-              chd_n_flag = 0;                                                      //清所有标志位
-          }
-
-        } 
-           
-////////////////////////////顺向出岛//////////            
-        if((rhd_s_flag == 1)&&(ADC_Normal[0] >= 0.700)&&((ADC_Normal[2]-ADC_Normal[3])*(ADC_Normal[2]-ADC_Normal[3]) <= 0.250))
-        {
-          chd_s_flag_a = 1;
-          beep_on();
-        }
-        if(chd_s_flag_a == 1)                      //出岛
-        {
-        
-              
-            speed_power = 0.8;                     //出岛减速   
-               
-            fe_last = fe;                         //出岛误差算法
-            //fe = (int)(( (sqrt(ADC_Normal[3]) - sqrt(ADC_Normal[0])) / ( ADC_Normal[3] + ADC_Normal[0] ) ) * 100);
-            fe = (int)( (ADC_Normal[3] - ADC_Normal[0] ) * 100);
-            fec = fe - fe_last;     
-          
-          if(ADC_Normal[0] <= 0.700)               
-          {
-             chd_s_flag_a = 0;
-             chd_s_flag = 1;                        //出岛结束
-             beep_off();
-             speed_power = 1.0;                     //释放减速
-          }
-          if((chd_n_flag == 1)&&(ADC_Normal[0] <= 0.050)&&(ADC_Normal[3] <= 0.050))   //离开环岛区域
-          {
-              rhd_s_flag_a = 0;
-              rhd_s_flag_b = 0;
-              rhd_s_flag_c = 0;
-              rhd_s_flag_d = 0;
-              rhd_s_flag_e = 0;
-              rhd_s_flag_f = 0;
-              rhd_s_flag_g = 0;
-              chd_s_flag_a = 0;
-            
-              rhd_s_flag = 0;
-              chd_s_flag = 0;                                                          //清所有标志位
-          }  
-          
-         }
-}   
-
-/*******************************************************************************
- *  @brief      Cross_road 函数
- *  @note       十字路口判断
-                
- *  @warning    
- ******************************************************************************/
-uint8 Cross_road()
-{
-  if((ADC_Normal[0] >= 0.750)&&(ADC_Normal[3] >= 0.750))    
-    return 1 ;
-  else
-    return 0;
+  }
+  if(s_inside_is == 1)  //岛内过程
+  {
+    speed_power = 1.0;
+    none_steerctrl = 0;
+    if((n_inside_is_a == 0)&&(ADC_Normal[0] <= 0.300))
+      n_inside_is_a = 1;
+    if((n_inside_is_a == 1)&&(ADC_Normal[0] >= 0.700)&&((ADC_Normal[1]-ADC_Normal[0])*(ADC_Normal[1]-ADC_Normal[0]) <= 0.250))
+    {
+      n_inside_is_a = 0;
+      n_inside_is = 0;
+      s_exit_is = 1;
+    }
+  }
+  if(s_exit_is == 1)       //出岛过程  beep
+  {
+     speed_power = 0.5;
+     beep_on();
+     ////////出岛误差算法//////////  
+     fe_last = fe;                    
+     fe = (int)( (ADC_Normal[0] - ADC_Normal[3] ) * 100);
+     fec = fe - fe_last;
+     ////////出岛结束点////////////
+     if(ADC_Normal[0] <= 0.700)
+     {
+       speed_power = 1.0;
+       beep_off();
+       s_exit_is = 0;
+       s_exit_is_over = 1;  //
+     }
+  }
+  if(s_exit_is_over == 1)
+  {
+    speed_power = 1.0;
+    none_steerctrl = 0;
+    if((ADC_Normal[0] <= 0.050)&&(ADC_Normal[3] <= 0.050))
+      s_exit_is_over = 0;
+  }
+ 
 }
+
+
+
+
+

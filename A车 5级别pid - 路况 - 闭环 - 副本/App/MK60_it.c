@@ -23,7 +23,7 @@ char bluetooth_data=0;//接收到的数据存在这个变量
  *  @note
  *  @warning
  ******************************************************************************/
-void PIT0_IRQHandler(void)
+void    PIT0_IRQHandler(void)
 {
    /******  10s 停车  *******/
   /* if(times < 5)  //参数即为时间  如 tiems < 10 ，为 10s 自动停车

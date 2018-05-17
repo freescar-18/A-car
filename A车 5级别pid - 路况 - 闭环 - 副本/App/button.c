@@ -32,12 +32,12 @@ extern uint8 last_stop;//终点停车标记 大于1为停车
 extern uint8 car_dis_flag; //高电平开始标记位
 extern uint16 car_dis;  //超声波测距距离 单位cm
 extern uint8 car_dis_ms; //超声波测高电平的时间 单位ms
-
-extern uint8 rhd_n_flag,rhd_n_flag_a,rhd_n_flag_b,rhd_n_flag_c,rhd_n_flag_d,rhd_n_flag_e,rhd_n_flag_f,rhd_n_flag_g;
-extern uint8 rhd_s_flag,rhd_s_flag_a,rhd_s_flag_b,rhd_s_flag_c,rhd_s_flag_d,rhd_s_flag_e,rhd_s_flag_f,rhd_s_flag_g;
+/*
+extern uint8 n_flag,rhd_n_flag,rhd_n_flag_a,rhd_n_flag_b,rhd_n_flag_c,rhd_n_flag_d,rhd_n_flag_e,rhd_n_flag_f,rhd_n_flag_g;
+extern uint8 s_flag,rhd_s_flag,rhd_s_flag_a,rhd_s_flag_b,rhd_s_flag_c,rhd_s_flag_d,rhd_s_flag_e,rhd_s_flag_f,rhd_s_flag_g;
 extern uint8 chd_n_flag,chd_n_flag_a,chd_n_flag_b;                              
 extern uint8 chd_s_flag,chd_s_flag_a,chd_s_flag_b;  
-
+*/
 /*******************************************************************************
  *  @brief      PORT的参考中断服务函数
  *  @since      v5.0
@@ -117,11 +117,12 @@ void PORTB_IRQHandler(void)
          jishu = 0;
          times = 0;//清空停车时间计时
          
-        rhd_n_flag_a = 0; rhd_n_flag_b = 0; rhd_n_flag_c = 0;rhd_n_flag_d = 0;rhd_n_flag_e = 0;rhd_n_flag_f = 0;rhd_n_flag_g = 0;
+       /* rhd_n_flag_a = 0; rhd_n_flag_b = 0; rhd_n_flag_c = 0;rhd_n_flag_d = 0;rhd_n_flag_e = 0;rhd_n_flag_f = 0;rhd_n_flag_g = 0;
         rhd_s_flag_a = 0; rhd_s_flag_b = 0; rhd_s_flag_c = 0;rhd_s_flag_d = 0;rhd_s_flag_e = 0;rhd_s_flag_f = 0;rhd_s_flag_g = 0;
         chd_n_flag_a = 0; chd_s_flag_a = 0;
         rhd_n_flag = 0;    rhd_s_flag = 0;
-        chd_n_flag = 0;    chd_s_flag = 0;   
+        chd_n_flag = 0;    chd_s_flag = 0;  
+        n_flag = 0;        s_flag = 0;   */
          
          last_stop = 0; //终点停车标记位恢复，变为0
          DELAY_MS(300);

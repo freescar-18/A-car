@@ -22,7 +22,7 @@ void OLED_Initialization(void); //OLED初始化
 void System_Initialization(void); //总初始化
 
 /****************************  宏定义  ****************************************/
-#define  PIT0_TIMER  (1000)  //定时器 0 所用的时间 ms
+#define  PIT0_TIMER  (5)  //定时器 0 所用的时间 ms
 #define  PIT1_TIMER  (5)  //定时器 1 所用的时间   ms
 #define  PIT2_TIMER  (500)  //定时器 2 所用的时间  us
 #define  PIT3_TIMER  (4000)  //定时器 3 所用的时间  ms

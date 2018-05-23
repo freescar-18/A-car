@@ -48,7 +48,7 @@ extern int16 steerctrl;
 extern int16 last_steerctrl;
 extern int16 speed_forecast;
 
-uint8 level;
+uint8 level = 1;
 float dreams = 0.07;
 uint16 cross = 0;
 uint16 cross_pass = 0;
@@ -67,7 +67,7 @@ void MessageProcessing(void)
     for(i = 0;i < SamplingNum; i++)//采集电感SamplingNum次
     {   
         //var_test1 = adc_once(ADC1_SE10, ADC_12bit);
-        ADC_GetMessage[0][i] = adc_once(ADC1_SE11, ADC_12bit); //Green
+        ADC_GetMessage[0][i] = adc_once(ADC1_SE10, ADC_12bit); //Green
         ADC_GetMessage[1][i] = adc_once(ADC1_SE12, ADC_12bit); //blue
         //var_test4 = adc_once(ADC1_SE13, ADC_12bit);
         ADC_GetMessage[2][i] = adc_once(ADC1_SE14, ADC_12bit); //brown

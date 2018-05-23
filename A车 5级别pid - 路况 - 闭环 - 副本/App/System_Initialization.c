@@ -74,7 +74,7 @@ void FTM_Initialization(void)
     //ftm_quad_init(FTM1); //FTM1 正交解码初始化( PTA8、PIA9 )   FTM1_QDPHA_PIN
     ftm_quad_init(FTM2); //FTM2 正交解码初始化( PTA10、PIA11 )
     //舵机初始化
-    ftm_pwm_init(S3010_FTM, S3010_CH, S3010_HZ,720); //初始化 舵机 PWM
+    ftm_pwm_init(S3010_FTM, S3010_CH, S3010_HZ,1490); //初始化 舵机 PWM
     //电机初始化 第一代车只需控制 MOTOR2 和 MOTOR3 即可都正转
     ftm_pwm_init(MOTOR_FTM, MOTOR1_PWM, MOTOR_HZ, 0); //初始化 电机 PWM
     ftm_pwm_init(MOTOR_FTM, MOTOR2_PWM, MOTOR_HZ, 0); //初始化 电机 PWM 
@@ -162,7 +162,7 @@ void ISR_Initialization(void)
     
     enable_irq(PIT0_IRQn); // 使能PIT0中断
    // enable_irq(PIT1_IRQn); // 使能PIT1中断
-    //enable_irq(PIT2_IRQn); // 使能PIT2中断
+   // enable_irq(PIT2_IRQn); // 使能PIT2中断
    // enable_irq(PIT3_IRQn); // 使能PIT3中断
     enable_irq (PORTE_IRQn); //使能PORTE中断
     enable_irq (PORTA_IRQn); //使能PORTE中断

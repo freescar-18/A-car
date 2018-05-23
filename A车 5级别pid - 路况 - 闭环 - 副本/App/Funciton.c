@@ -54,7 +54,9 @@ extern uint8 level;
 extern uint16 cross;
 extern uint16 cross_pass;
 extern uint16 car_dis;
-
+extern int16 dis_left,dis_right;
+extern char bluetooth_data;
+extern uint8 shizi;
 /*******************************************************************************
  *  @brief      beep_on函数
  *  @note       蜂鸣器一直响
@@ -88,7 +90,7 @@ void beep_off(void)
  ******************************************************************************/
 void oled_view(void)
 {
-        LED_PrintShort(45,7,tab); 
+        LED_PrintShort(45,7,shizi); 
         LED_PrintValueF(45,2,speed_forecast,2); 
      //   LED_PrintShort(90,4,speed_forecast_right); //显示电机PWM 
         LED_PrintValueF(0,4,speed_fec,2); //显示最大误差变化率的绝对值
@@ -122,7 +124,7 @@ void oled_view(void)
               LED_PrintValueF(45,0,Rule_kd[0],3); 
           LED_PrintValueF(45,1,Rule_kd[1],3); 
            LED_PrintValueF(45,5,Rule_kd[3],3);  
-          LED_PrintValueF(45,6,Rule_kd[4],3); 
+          LED_PrintValueF(45,6,level,3); 
      //       LED_PrintValueF(45,5,Rule_kd[5],3); 
       //       LED_PrintValueF(45,6,Rule_kd[6],3); 
   /*   LED_PrintBMP(12,0,26,1,hello[0]);

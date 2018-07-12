@@ -31,10 +31,10 @@ float speed_forecast_right = 0;  //右轮预测车速
 
 /*需要调节的参数*/
 float speed_power = 1;
-float speed_eRule[5] = {0,20,40,60,80}; //输入误差（speed_fe）的范围                                  
+float speed_eRule[5] = {0,40,50,60,70}; //输入误差（speed_fe）的范围                                  
 float speed_ecRule[5] = {0,10,20,30,40}; //输入误差的变化率（speed_fec）的范围
-float speed_Rule[5] = {37,38,39,40,41}; //输出预测速度（speed_forecast）的范围 
-float speed_error_Rule[5] = {15,13,10,7,0};  //预测速度偏差的范围
+float speed_Rule[5] = {41,40,40,40,37}; //输出预测速度（speed_forecast）的范围 
+float speed_error_Rule[5] = {35,24,13,4,0};  //预测速度偏差的范围
                                           //
 int speed_rule[6][6] =   //速度规则表
 {
@@ -65,10 +65,10 @@ float speed_Fuzzy_kp[6] = {0,0,0,0,0,/*末尾为0,用来查询模糊表步骤*/ 0};
 float speed_Fuzzy_kd[6] = {0,0,0,0,0,/*末尾为0,用来查询模糊表步骤*/ 0};
 
 /*******************  需要调节的参数  ******************************************/
-float speed_eRule_err[5] = {-10,-5,0,5,10}; //输入误差的范围                                  
-float speed_ecRule_err[5] = {-6,-3,0,3,6}; //输入误差的变化率的范围
-float speed_Rule_kp[5] = {-10,-5,0,5,10};  //输出的P值的范围                                      
-float speed_Rule_kd[5] = {-4,-2,0,2,4};  //输出的D值的范围
+float speed_eRule_err[5] = {-8,-6,0,6,8}; //输入误差的范围                                  
+float speed_ecRule_err[5] = {-5,-2,0,2,5}; //输入误差的变化率的范围
+float speed_Rule_kp[5] = {-2.5,-1,0,1,2.5};  //输出的P值的范围                                      
+float speed_Rule_kd[5] = {0,0,0,0,0};  //输出的D值的范围
 int speed_rule_kp[6][6]=  //p值规则表
 {
   //ec 0 1 2 3 4  //e
@@ -90,6 +90,8 @@ int speed_rule_kd[6][6]=  //d值规则表
       {5,5,5,5,5,5} //
 };
 
+
+float DDD = 0;
 
 /*******************************************************************************
  *  @brief      speed_fuzzy_mem_cal_forecast函数
@@ -170,6 +172,11 @@ void speed_fuzzy_mem_cal_forecast(void)//隶属度计算
       speed_pec=4;
     }
     ecFuzzy[1] = 1.0 - ecFuzzy[0];
+    
+/**/speed_pec = 2;
+/**/ecFuzzy[0] = 1;
+/**/ecFuzzy[1] = 0;
+      
 }
     
 
@@ -215,7 +222,10 @@ void speed_fuzzy_solve_forecast(void)//解模糊得到pd值
       speed_forecast += (speed_Fuzzy[m] * speed_Rule[m]);
       speed_forecast_error += (speed_Fuzzy[m] * speed_error_Rule[m]);
     }
-    if( speed_forecast > 45) speed_forecast = 45;
+   // if( speed_forecast > 55) speed_forecast = 55;
+   // if( speed_forecast_error > 30) speed_forecast_error = 30;
+    speed_forecast = speed_forecast;
+    speed_forecast_error = speed_forecast_error;
 }
 
 /*******************************************************************************
@@ -228,13 +238,13 @@ void speedcontrol_forecast(void)
 {
     if(fe < 0)
         {
-            speed_forecast_right = speed_power * (speed_forecast - speed_forecast_error);
-            speed_forecast_left = speed_power * speed_forecast;
+            speed_forecast_right = (speed_forecast - speed_forecast_error);
+            speed_forecast_left = speed_forecast + speed_forecast_error / 2;
         }
         else
         {
-            speed_forecast_left = speed_power * (speed_forecast - speed_forecast_error);
-            speed_forecast_right = speed_power * speed_forecast;
+            speed_forecast_left = (speed_forecast - speed_forecast_error);
+            speed_forecast_right = speed_forecast + speed_forecast_error / 2;
         }
     
     speed_fe_last_left = speed_fe_left;
@@ -326,6 +336,10 @@ void speed_fuzzy_mem_cal_left(void)//隶属度计算
     }
     ecFuzzy[1] = 1.0 - ecFuzzy[0];
     
+/**/pec = 2;
+/**/ecFuzzy[0] = 1;
+/**/ecFuzzy[1] = 0;
+    
    
 }
 
@@ -398,7 +412,7 @@ void speedcontrol_left(void)
     last_PWM_left = speedctrl_left;
     if(speed_P > 0)  speed_P = -speed_P; //将输出的 P 值变为正数，乘上输入的误差恰好为舵机转角的增量
     if(speed_D > 0)  speed_D = -speed_D; //将输出的 D 值变为正数
-    speedctrl_error_left = (int)( speed_P * speed_fe_left + speed_D * (speed_fe_left - speed_fe_last_left) );//舵机转角增量
+    speedctrl_error_left = (int)( speed_P * speed_fe_left + 0.35 * (speed_fe_left + speed_fe_last_left) + DDD * (speed_fe_left - speed_fe_last_left) );//舵机转角增量
     speedctrl_left = (int)(last_PWM_left + speedctrl_error_left); //舵机转角PWM
 }
 
@@ -477,6 +491,10 @@ void speed_fuzzy_mem_cal_right(void)//隶属度计算
       pec=4;
     }
     ecFuzzy[1] = 1.0 - ecFuzzy[0];
+    
+/**/pec = 2;
+/**/ecFuzzy[0] = 1;
+/**/ecFuzzy[1] = 0;
 }
 
 /*******************************************************************************
@@ -548,10 +566,8 @@ void speedcontrol_right(void)
     last_PWM_right = speedctrl_right;
     if(speed_P > 0)  speed_P = -speed_P; //将输出的 P 值变为正数，乘上输入的误差恰好为舵机转角的增量
     if(speed_D > 0)  speed_D = -speed_D; //将输出的 D 值变为正数
-    speedctrl_error_right = (int)( speed_P * speed_fe_right + speed_D * (speed_fe_right - speed_fe_last_right) );//舵机转角增量
+    speedctrl_error_right = (int)( speed_P * speed_fe_right + 0.35 * (speed_fe_right + speed_fe_last_right) + DDD * (speed_fe_right - speed_fe_last_right));//舵机转角增量
     speedctrl_right = (int)(last_PWM_right + speedctrl_error_right); //舵机转角PWM
 }
     
-   
-
-   
+    

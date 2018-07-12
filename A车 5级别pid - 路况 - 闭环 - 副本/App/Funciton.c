@@ -57,6 +57,7 @@ extern uint16 car_dis;
 extern int16 dis_left,dis_right;
 extern char bluetooth_data;
 extern uint8 shizi;
+
 /*******************************************************************************
  *  @brief      beep_onº¯Êý
  *  @note       ·äÃùÆ÷Ò»Ö±Ïì
@@ -123,7 +124,7 @@ void oled_view(void)
              
               LED_PrintValueF(45,0,Rule_kd[0],3); 
           LED_PrintValueF(45,1,Rule_kd[1],3); 
-           LED_PrintValueF(45,5,Rule_kd[3],3);  
+           LED_PrintValueF(45,5,speed_Rule[4],3);  
           LED_PrintValueF(45,6,level,3); 
      //       LED_PrintValueF(45,5,Rule_kd[5],3); 
       //       LED_PrintValueF(45,6,Rule_kd[6],3); 

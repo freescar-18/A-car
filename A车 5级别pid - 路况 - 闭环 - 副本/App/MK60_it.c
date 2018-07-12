@@ -42,7 +42,7 @@ uint16 gameover = 0;
 void PIT0_IRQHandler(void)
 {
    /******  10s 停车  *******/
-   
+   /*
    if(times > 0)  
     {
       times--;
@@ -59,7 +59,7 @@ void PIT0_IRQHandler(void)
                 beep_on();
                 if( shizi == 2 )
                 {    
-                    speed_power = 0.3;
+                    speed_power = 0.2;
                 }
                 if( shizi == 3 )
                 {    
@@ -75,9 +75,8 @@ void PIT0_IRQHandler(void)
                 }
             }
         }
-    }
-  
-    
+    }  
+    */
     PIT_Flag_Clear(PIT0);       //清中断标志位
 }
 
@@ -91,7 +90,7 @@ void PIT1_IRQHandler(void)
     if( start_flag > 0 ) //发车程序，给start_flag赋值就可以进入发车程序
     {
         start_car();
-        delay_flag = 30;
+        delay_flag = 60;
     }
     ///////////////////////////////////////////////////////////////////////////
     else if( level == 40 )//终点停车程序
@@ -168,7 +167,7 @@ void PIT1_IRQHandler(void)
     {
         gameover++;
         test_motor();
-        if(gameover > 100)  flag = 1;
+        if(gameover > 60)  flag = 1;
     }
     else
     {
@@ -261,7 +260,7 @@ void uart4_test_handler(void)
               uart_putchar (UART4,'2'); 
               flag = 0;
               wait_flag = 0;
-              start_flag = 300;
+              start_flag = 400;
               level = 100;
          }
         // bluetooth_data = 0; //////////////////这里只是为了下次蜂鸣器不响，你想干啥就干啥
@@ -270,7 +269,7 @@ void uart4_test_handler(void)
       {
          flag = 0;
          wait_flag = 0;
-         start_flag = 300;
+         start_flag = 400;
          level = 100;
         // bluetooth_data = 0; //////////////////这里只是为了下次蜂鸣器不响，你想干啥就干啥
       }

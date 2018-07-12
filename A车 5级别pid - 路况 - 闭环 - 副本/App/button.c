@@ -41,6 +41,7 @@ extern uint16 dis_back;
 extern uint8 wait_flag;
 extern uint8 shizi;
 
+
 /*******************************************************************************
  *  @brief      PORT的参考中断服务函数
  *  @since      v5.0
@@ -68,7 +69,7 @@ void PORTA_IRQHandler(void)
         ones = 1;
         if(tab == 0) tab = 1;//切换键
         else tab = 0;
-/**/    start_flag = 200;
+/**/    start_flag = 0;
         DELAY_MS(300);
          
         /*  以上为用户任务  */
@@ -89,17 +90,7 @@ void PORTA_IRQHandler(void)
             test_max_ADC_flash_write();
         }
         ones = 1;  // 只会写一次！！
-        
-        if(tab == 0)
-        {
-        Rule_kp[0] = Rule_kp[0] - 0.1;
-        Rule_kp[1] = Rule_kp[1] - 0.1;
-        }
-        if(tab == 1)
-        {
-        Rule_kd[0] = Rule_kd[0] - 0.01 *10;
-        Rule_kd[1] = Rule_kd[1] - 0.01 *10;
-        }
+       // steering_test = steering_test + 5;
          DELAY_MS(300); 
      }
         
@@ -116,7 +107,7 @@ void PORTB_IRQHandler(void)
         PORTB_ISFR  = (1 << n);        //写1清中断标志位
 
         /*  以下为用户任务  */
-         flag = 0; //清空停车位
+        /* flag = 0; //清空停车位
           ones = 1;
          jishu = 0;
          times = 0;//清空定时停车时间计时
@@ -126,8 +117,8 @@ void PORTB_IRQHandler(void)
          level = 1; //清空等级
          start_flag = 0; //清空发车
          dis_right = 0; //清空车移动的距离
-         wait_flag = 0;
-         DELAY_MS(300);
+         wait_flag = 0;*/
+         DELAY_MS(400);
         /*  以上为用户任务  */
     }
     /////////////  PTB3 RIGHT 按键   ///////////////////////////////////////////
@@ -153,8 +144,9 @@ void PORTB_IRQHandler(void)
          DELAY_MS(300);
         */
         //shizi++;
-        level++;
+        //level++;
         flag = 0;
+       // steering_test = steering_test - 5;
         /*  以上为用户任务  */
     }
               
@@ -174,10 +166,10 @@ void PORTE_IRQHandler(void)
         //last_stop = 1; //最终停车标记
         if(start_flag == 0 && level != 40 && level != 100)
         {
-/**/        level = 40;
-/**/        dis_back = 1000;
-/**/        last_stop = 0;
-/**/        dis_right = 0;
+/**/    //    level = 40;
+/**/    //    dis_back = 1000;
+/**/     //   last_stop = 0;
+/**/    //    dis_right = 0;
         }
         /*  以上为用户任务  */
     }

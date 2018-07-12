@@ -135,6 +135,9 @@ void ADCerror_diff(void)
       fe1 =  sqrt( ADC_Normal[2] * ADC_Normal[2] + ADC_Normal[3] * ADC_Normal[3] );
       fe2 =  sqrt(  ADC_Normal[1] * ADC_Normal[1] + ADC_Normal[0] * ADC_Normal[0] );
       fe = (int)(( (sqrt(fe1) - sqrt(fe2)) / ( fe1 + fe2 ) ) * 100);      
+      if(fe > 400) fe = 400; //误差保护
+      if(fe < -400) fe = -400; //误差保护
+    
 /**///  if( ADC_Normal[0] > 0.5 && ADC_Normal[3] > 0.5 ) level = 40;
 /**///  if(level == 40) 
 /**/// {

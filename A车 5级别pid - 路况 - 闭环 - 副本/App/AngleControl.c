@@ -28,12 +28,12 @@ float Fuzzy_kd[6] = {0,0,0,0,0,/*末尾为0,用来查询模糊表步骤*/ 0};
 /*需要调节的参数*/
 float P_power = 1;
 float D_power = 1;
-float eRule[5] = {-40,-25,0,25,40}; //输入误差（fe）的范围，由负到正 
+float eRule[5] = {-61,-47,0,43,55}; //输入误差（fe）的范围，由负到正 
                                             //如归一化偏差法，输入的误差为-0.9 到 0.9，乘以100即为-90到90，再分成7份
 float ecRule[5] = {-25,-15,0,15,25}; //输入误差的变化率（fec）的范围，由负到正
-float Rule_kp[5] = {-2.2,-1.2,0,1.2,1.8};  //  输出的P值的范围  
+float Rule_kp[5] = {-1.52,-0.34,0,0.32,1.37};  //  输出的P值的范围  
                                                    //  负即是左转的P值（left -- right）(+85 - -75)
-float Rule_kd[5] = {-0.8,-0.4,0,0.4,0.8};  //输出的D值的范围
+float Rule_kd[5] = {0,0,0,0,0};  //输出的D值的范围
 /*
 int rule_kp[8][8]=  //p值规则表
 {
@@ -183,6 +183,10 @@ void fuzzy_mem_cal(void)//隶属度计算
       pec=4;
     }
     ecFuzzy[1] = 1.0 - ecFuzzy[0];
+    
+/**/pec = 2;
+/**/ecFuzzy[0] = 1;
+/**/ecFuzzy[1] = 0;
 }
 
 /*******************************************************************************
@@ -253,7 +257,7 @@ void steercontrol(void)
 {
     if(steer_P < 0)  steer_P = -steer_P; //将输出的 P 值变为正数，乘上输入的误差恰好为舵机转角的增量
     if(steer_D < 0)  steer_D = -steer_D; //将输出的 D 值变为正数
-    steerctrl_error = (int)( P_power * steer_P * fe + D_power * steer_D * (fe - fe_last) );//舵机转角增量
+    steerctrl_error = (int)( steer_P * fe + 8 * (fe - fe_last) );//舵机转角增量
     last_steerctrl = steerctrl;
     steerctrl = Midsteering + steerctrl_error; //舵机转角PWM
 }

@@ -20,6 +20,12 @@ extern uint8 chaoshengbotime;
 extern uint8 flag_csb;
 extern uint32 timevar;
 extern byte bmp[];
+extern struct _MAG mag_read;
+uint16 clj = 0;
+extern uint16 last_stop;//终点停车标记 大于1为停车
+extern uint8 level;
+extern uint16 dis_right,dis_left;
+extern uint16 dis_back;
 
 extern void OutPut_Data_test(void);
 /*!
@@ -63,9 +69,9 @@ void main()
     set_irq_priority(PORTB_IRQn,4);
     set_irq_priority(PORTA_IRQn,5);
     set_irq_priority(PORTE_IRQn,6);
-    set_irq_priority(PIT1_IRQn,7);
-    set_irq_priority(PIT0_IRQn,8);
-    
+    set_irq_priority(PIT0_IRQn,7);
+    set_irq_priority(PIT1_IRQn,8);
+      
     DisableInterrupts;
     DELAY_MS(10);
     EnableInterrupts; //同时启动中断   
@@ -73,42 +79,50 @@ void main()
     
     while(1)
     {
-       //ftm_pwm_duty(S3010_FTM, S3010_CH,768);  //输出舵机PWM
-       //ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,4000); //输出电机PWM
-      // ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,3000); //输出电机PWM
-      /* if(flag==1)
-       {
-          ftm_pwm_duty(S3010_FTM, S3010_CH,768);  //输出舵机PWM
-          ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM
-          ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM
-       }  */
-       oled_view();
-     //  test_motor(); 
+      //  LED_P6x8Str(0,4,"ojbk");
+        oled_view();
+     //   test_motor(); 
       //  test_steering();
-    // test_ADC();
-     // test_max_ADC();
-       OutPut_Data_test();//示波器调试  
-       
-    // Freecars_scope();//多通道示波器调试
-       
-     //  gpio_turn(PTD15);   
-   //   OutPut_Data_test_sscom();//串口助手调试  
-      //MessageProcessing(); 
-      //Road_Id_Get();
-       //test_nrf_re();
-      //LED_PrintBMP(0,0,112,1,bmp);
+    //    test_ADC();
+     //   test_max_ADC();
+     /*
+        OutPut_Data_test();//示波器调试  
+        MAG3110_Read(&mag_read);
+        LED_PrintShort(45,2,mag_read.mag_x);
+        LED_PrintShort(45,4,mag_read.mag_y); 
+       if( mag_read.mag_y < -3000 || (mag_read.mag_y > 500) )
+       {
+          clj = 1000;
+          level = 40;
+          dis_back = 1000;
+          dis_right = 0;
+          last_stop = 0;
+       }
+       else
+       {
+          clj = 0;
+       }*/
+       //  LED_PrintShort(45,5,mag_read.mag_x_offset); 
+       //  LED_PrintShort(45,6,mag_read.mag_y_offset);     
+    //     Freecars_scope();//多通道示波器调试      
+     //    gpio_turn(PTD15);   
+   //      OutPut_Data_test_sscom();//串口助手调试  
+      //   MessageProcessing(); 
+      //   Road_Id_Get();
+       //  test_nrf_re();
+      //   LED_PrintBMP(0,0,112,1,bmp);
    /*      if((flag_csb == 1)&&(gpio_get(PTB18) == 0))  
-         {
+          {
             beep_off();
             timevar = pit_time_get(PIT2);
             chaoshengbotime = (0xffffffff-timevar)/50; //ms
             length = chaoshengbotime*340/1000; //mm
             pit_close(PIT2);
 
-         }
-      LED_P6x8Str(0,4,"ojbk");
-      LED_PrintShort(0,5,length);
-      LED_PrintShort(0,6,chaoshengbotime);
+           }
+            LED_P6x8Str(0,4,"ojbk");
+            LED_PrintShort(0,5,length);
+            LED_PrintShort(0,6,chaoshengbotime);
            */
     }
 }

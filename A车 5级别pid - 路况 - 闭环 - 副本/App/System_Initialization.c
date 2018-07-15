@@ -13,7 +13,7 @@
 
 
 /**************************  全局变量   ***************************************/
-
+extern struct _MAG mag_read;
     
 /*!
  *  @brief     ADC模块初始化 
@@ -53,8 +53,8 @@ void PIT_Initialization(void)
    // pit_init_ms(PIT1, PIT1_TIMER);                                
     //set_vector_handler(PIT1_VECTORn ,PIT1_IRQHandler); //设置PIT1的中断服务函数为 PIT1_IRQHandler
    // 初始化PIT2  用于超声波计时
-    pit_init_us(PIT2, PIT2_TIMER);                                
-    set_vector_handler(PIT2_VECTORn ,PIT2_IRQHandler); //设置PIT2的中断服务函数为 PIT2_IRQHandler
+   // pit_init_us(PIT2, PIT2_TIMER);                                
+   // set_vector_handler(PIT2_VECTORn ,PIT2_IRQHandler); //设置PIT2的中断服务函数为 PIT2_IRQHandler
     //初始化PIT3
     //pit_init_ms(PIT3, PIT3_TIMER);                                
     //set_vector_handler(PIT3_VECTORn ,PIT3_IRQHandler); //设置PIT3的中断服务函数为 PIT3_IRQHandler
@@ -74,7 +74,7 @@ void FTM_Initialization(void)
     //ftm_quad_init(FTM1); //FTM1 正交解码初始化( PTA8、PIA9 )   FTM1_QDPHA_PIN
     ftm_quad_init(FTM2); //FTM2 正交解码初始化( PTA10、PIA11 )
     //舵机初始化
-    ftm_pwm_init(S3010_FTM, S3010_CH, S3010_HZ,1340); //初始化 舵机 PWM
+    ftm_pwm_init(S3010_FTM, S3010_CH, S3010_HZ,Midsteering); //初始化 舵机 PWM
     //电机初始化 第一代车只需控制 MOTOR2 和 MOTOR3 即可都正转
     ftm_pwm_init(MOTOR_FTM, MOTOR1_PWM, MOTOR_HZ, 0); //初始化 电机 PWM
     ftm_pwm_init(MOTOR_FTM, MOTOR2_PWM, MOTOR_HZ, 0); //初始化 电机 PWM 
@@ -107,13 +107,17 @@ void GPIO_Initialization(void)
     //干簧管初始化
     port_init(PTE10, ALT1 | IRQ_FALLING | PULLUP ); //初始化 PTE10管脚，复用功能为GPIO ，下降沿触发中断，上拉电阻
     //超声波模块测距
-    port_init( PTC4, ALT1 | IRQ_RISING | PULLUP ); //初始化 PTB18管脚，复用功能为GPIO
+  //  port_init( PTC4, ALT1 | IRQ_RISING | PULLUP ); //初始化 PTB18管脚，复用功能为GPIO
     set_vector_handler(PORTE_VECTORn ,PORTE_IRQHandler); //设置PORTE的中断服务函数为 PORTE_IRQHandler
     set_vector_handler(PORTA_VECTORn ,PORTA_IRQHandler); //设置PORTA的中断服务函数为 PORTA_IRQHandler
     set_vector_handler(PORTB_VECTORn ,PORTB_IRQHandler); //设置PORTB的中断服务函数为 PORTB_IRQHandler
     set_vector_handler(PORTC_VECTORn ,PORTC_IRQHandler); //设置PORTC的中断服务函数为 PORTC_IRQHandler
     //蜂鸣器初始化
     gpio_init (PTE1, GPO, 0); //初始化 PTC8管脚，输出，初始低电平
+    
+    MAG3110_Init();
+    mag_read.mag_x_offset = -885;
+    mag_read.mag_y_offset = 680;
     
 }
 

@@ -18,7 +18,8 @@ int16 steerctrl; // 输出的舵机转角PWM
 int16 last_steerctrl; // 上次输出的舵机转角PWM
 int16 steerctrl_error; //舵机转角的增量（可正可负） 加上舵机中间值即为舵机需要转角的PWM
 
-float steer_P,steer_D;  // 输出的 P 值 和 D 值
+float steer_P;
+float steer_D = 8;  // 输出的 P 值 和 D 值
 extern float fe,fec,fe_last; 
 float eFuzzy[2] = {0,0}; 
 float ecFuzzy[2] = {0,0}; 
@@ -216,7 +217,7 @@ void fuzzy_query(void)//查询模糊规则表
     Fuzzy_kp[num] += eFuzzy[1] * ecFuzzy[1];
     
       /*查询kd模糊规则表*/  
-    num = rule_kd[pe][pec];
+    /*num = rule_kd[pe][pec];
     Fuzzy_kd[num] += eFuzzy[0] * ecFuzzy[0];
 
     num = rule_kd[pe][pec+1];
@@ -226,7 +227,7 @@ void fuzzy_query(void)//查询模糊规则表
     Fuzzy_kd[num] += eFuzzy[1] * ecFuzzy[0];
     
     num = rule_kd[pe+1][pec+1];
-    Fuzzy_kd[num] += eFuzzy[1] * ecFuzzy[1];
+    Fuzzy_kd[num] += eFuzzy[1] * ecFuzzy[1];*/
 }
 
 /*******************************************************************************
@@ -238,12 +239,12 @@ void fuzzy_query(void)//查询模糊规则表
 void fuzzy_solve(void)//解模糊得到pd值
 {
     steer_P = 0; //清空P和D值以便累加
-    steer_D = 0;
+   // steer_D = 0;
     /*面积中心法解模糊*/
     for(l = 0;l < rank; l++)
     {
       steer_P += Fuzzy_kp[l] * Rule_kp[l];
-      steer_D += Fuzzy_kd[l] * Rule_kd[l];   
+   //   steer_D += Fuzzy_kd[l] * Rule_kd[l];   
     }
 }
 
@@ -256,8 +257,8 @@ void fuzzy_solve(void)//解模糊得到pd值
 void steercontrol(void) 
 {
     if(steer_P < 0)  steer_P = -steer_P; //将输出的 P 值变为正数，乘上输入的误差恰好为舵机转角的增量
-    if(steer_D < 0)  steer_D = -steer_D; //将输出的 D 值变为正数
-    steerctrl_error = (int)( steer_P * fe + 8 * (fe - fe_last) );//舵机转角增量
+    //if(steer_D < 0)  steer_D = -steer_D; //将输出的 D 值变为正数
+    steerctrl_error = (int)( steer_P * fe + steer_D * (fe - fe_last) );//舵机转角增量
     last_steerctrl = steerctrl;
     steerctrl = Midsteering + steerctrl_error; //舵机转角PWM
 }

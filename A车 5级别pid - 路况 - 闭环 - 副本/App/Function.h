@@ -13,6 +13,9 @@
 void beep_on(void);
 void beep_off(void);
 void oled_view(void);
+void read_flash(void);
+void write_flash(void);
+
 
 /****************************  ∫Í∂®“Â  ****************************************/
 

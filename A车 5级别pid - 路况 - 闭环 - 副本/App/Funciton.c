@@ -12,16 +12,17 @@
 #include    "AllFunction.h"
 
 /**************************  全局变量   ***************************************/
-extern uint16 ADC_Value[4];
-extern uint16 SUM_ADC_GetMessage[4];
-extern uint16 ADC_Maxing[4];
+extern uint16 ADC_Value[5];
+extern uint16 SUM_ADC_GetMessage[5];
+extern uint16 ADC_Maxing[5];
 extern float Rule_kd[5];
 extern float Rule_kp[5];
-extern float ADC_Normal[4];
+extern float ADC_Normal[5];
 extern float fe,fec;
 extern float speed_fec,speed_fe;
 extern float steer_P;
 extern float speed_Rule[5];
+extern float speed_error_Rule[5];
 extern int16 steerctrl;
 extern float speed_forecast;
 extern int16 steerctrl_error;
@@ -57,6 +58,16 @@ extern uint16 car_dis;
 extern int16 dis_left,dis_right;
 extern char bluetooth_data;
 extern uint8 shizi;
+uint8 switch_mode = 100;
+extern uint8 wait_flag_shizi;
+extern uint8 last_flag_shizi;
+extern uint8 turn_left_flag;
+extern uint8 turn_right_flag;
+extern float steer_D;
+extern float last_speed_power;
+extern uint16 max_PWM;
+uint8 write_flash_flag = 0;
+uint8 read_flash_flag = 0;
 
 /*******************************************************************************
  *  @brief      beep_on函数
@@ -91,47 +102,226 @@ void beep_off(void)
  ******************************************************************************/
 void oled_view(void)
 {
-        LED_PrintShort(45,7,shizi); 
-        LED_PrintValueF(45,2,speed_forecast,2); 
-     //   LED_PrintShort(90,4,speed_forecast_right); //显示电机PWM 
-        LED_PrintValueF(0,4,speed_fec,2); //显示最大误差变化率的绝对值
-    //    LED_PrintValueF(50,3,speed_min,2); //显示最小速度
-    //   LED_PrintShort(0,0,ADC_Value[0]);  //显示绿色电感值
-   //     LED_PrintShort(0,1,ADC_Value[1]);  //显示蓝色电感值
-   //    LED_PrintShort(0,2,ADC_Value[2]);  //显示褐色电感值
-   //     LED_PrintShort(0,3,ADC_Value[3]);  //显示橙色电感值
-       LED_PrintValueF(0,0,ADC_Normal[0],3);  //显示绿色电感归一化后值
-       LED_PrintValueF(0,1,ADC_Normal[1],3);  //显示蓝色电感归一化后值
-       LED_PrintValueF(0,2,ADC_Normal[2],3);  //显示褐色电感归一化后值
-       LED_PrintValueF(0,3,ADC_Normal[3],3);  //显示橙色电感归一化后值
-       LED_PrintShort(90,0,ADC_Value[0]); 
-       LED_PrintShort(90,1,ADC_Value[1]); 
-       LED_PrintShort(90,2,ADC_Value[2]); 
-       LED_PrintShort(90,3,ADC_Value[3]); 
-        LED_PrintValueF(45,3,fe,3);  //显示输入的误差
-         LED_PrintShort(45,4,level); 
-    //    LED_PrintValueF(50,6,steer_P,3);  //显示输出的 P 值
-         LED_PrintShort(90,5,speed_now_right); 
-         LED_PrintShort(0,5,speed_now_left);
-      //  steerctrl_error
-     //   LED_PrintValueF(25,6,fec,3); //显示误差变化率
-         LED_PrintValueF(0,7,Rule_kp[0],3); 
-          LED_PrintValueF(0,6,Rule_kp[1],3); 
-           LED_PrintValueF(90,6,Rule_kp[3],3);  
-          LED_PrintValueF(90,7,Rule_kp[4],3); 
-      //      LED_PrintValueF(90,6,Rule_kp[5],3); 
-     //        LED_PrintValueF(90,7,Rule_kp[6],3); 
-             
-              LED_PrintValueF(45,0,Rule_kd[0],3); 
-          LED_PrintValueF(45,1,Rule_kd[1],3); 
-           LED_PrintValueF(45,5,speed_Rule[4],3);  
-          LED_PrintValueF(45,6,level,3); 
-     //       LED_PrintValueF(45,5,Rule_kd[5],3); 
-      //       LED_PrintValueF(45,6,Rule_kd[6],3); 
-  /*   LED_PrintBMP(12,0,26,1,hello[0]);
-     LED_PrintBMP(27,0,41,1,hello[1]);
-     LED_PrintBMP(42,0,56,1,hello[2]);
-     LED_PrintBMP(57,0,71,1,hello[3]);
-     LED_PrintBMP(72,0,86,1,hello[4]); */
- // LED_P14x16Str(0,0,hello[0]);
+     /********* 拨码器 0000 *********/
+     /*********  查询电感值 归一化值 误差 左右轮子车速 *********/
+     if( gpio_get(PTA28) == 0 && gpio_get(PTA29) == 0 && gpio_get(PTA26) == 0 && gpio_get(PTA27) == 0 )
+     {   
+         if( switch_mode != 0) //清屏
+         {
+            LED_Fill(0x00);
+         }
+         LED_P6x8Str(40,0,"normal");
+         LED_PrintValueF(4,1,ADC_Normal[0],3);  //显示绿色电感归一化后值
+         LED_PrintValueF(4,2,ADC_Normal[1],3);  //显示蓝色电感归一化后值
+         LED_PrintValueF(4,3,ADC_Normal[2],3);  //显示褐色电感归一化后值
+         LED_PrintValueF(4,4,ADC_Normal[3],3);  //显示橙色电感归一化后值
+         LED_PrintValueF(4,5,ADC_Normal[4],3);  //显示归一化后值
+         LED_PrintShort(90,1,ADC_Value[0]); 
+         LED_PrintShort(90,2,ADC_Value[1]); 
+         LED_PrintShort(90,3,ADC_Value[2]); 
+         LED_PrintShort(90,4,ADC_Value[3]); 
+         LED_PrintShort(90,5,ADC_Value[4]); 
+         LED_PrintValueF(40,4,fe,3);  //显示输入的误差
+         LED_PrintShort(90,7,speed_now_right); 
+         LED_PrintShort(4,7,speed_now_left); 
+         switch_mode = 0;
+         switch_mode = 0;
+     }
+     /********* 拨码器 1000 *********/
+     /*********  flash中的最大电感值 *********/
+     else if( gpio_get(PTA28) == 1 && gpio_get(PTA29) == 0 && gpio_get(PTA26) == 0 && gpio_get(PTA27) == 0 )
+     {
+         if( switch_mode != 1)//清屏
+         {
+            LED_Fill(0x00);
+         }
+         LED_P6x8Str(40,0,"the max ADC");
+         LED_PrintShort(4,2,ADC_Maxing[0]); 
+         LED_PrintShort(4,3,ADC_Maxing[1]); 
+         LED_PrintShort(4,4,ADC_Maxing[2]); 
+         LED_PrintShort(4,5,ADC_Maxing[3]); 
+         LED_PrintShort(4,6,ADC_Maxing[4]); 
+         switch_mode = 1;
+     }
+     /********* 拨码器 1100 *********/
+     /*********  会车数据 *********/
+     else if( gpio_get(PTA28) == 1 && gpio_get(PTA29) == 1 && gpio_get(PTA26) == 0 && gpio_get(PTA27) == 0 )
+     {
+         if( switch_mode != 2)//清屏
+         {
+            LED_Fill(0x00);
+         }
+         LED_P6x8Str(4,0,"meeting message");  
+         LED_P6x8Str(4,1,"meeting"); 
+         LED_P6x8Str(4,2,"which shizi meeting:");
+         LED_P6x8Str(4,3,"wait_flag_shizi=");
+         LED_PrintShort(4,4,wait_flag_shizi);  
+         LED_P6x8Str(80,4,"(up-d)");
+         LED_P6x8Str(4,5,"turn left or right:");  
+         if(turn_left_flag == 0)
+         {
+             LED_P6x8Str(4,6,"left");  
+         }
+         else if(turn_right_flag == 0) 
+         {
+             LED_P6x8Str(4,6,"right");  
+         }
+         LED_P6x8Str(80,7,"(left-r)");
+         switch_mode = 2;
+     }
+     /********* 拨码器 1110 *********/
+     /*********  会车数据 *********/
+     else if( gpio_get(PTA28) == 1 && gpio_get(PTA29) == 1 && gpio_get(PTA26) == 1 && gpio_get(PTA27) == 0 )
+     {
+         if( switch_mode != 3)//清屏
+         {
+            LED_Fill(0x00);
+         }
+         LED_P6x8Str(4,0,"meeting message"); 
+         LED_P6x8Str(4,1,"speed reduction");   
+         LED_P6x8Str(4,2,"which shizi reduce:");
+         LED_P6x8Str(4,3,"last_flag_shizi=");
+         LED_PrintShort(4,4,last_flag_shizi);  
+         LED_P6x8Str(80,4,"(up-d)");
+         LED_P6x8Str(4,5,"reduce how many:");
+         LED_PrintValueF(4,6,last_speed_power,3);
+         LED_P6x8Str(80,7,"(left-r)");
+         switch_mode = 3;
+     }
+     /********* 拨码器 1111 *********/
+     /*********  调整速度 *********/
+     else if( gpio_get(PTA28) == 1 && gpio_get(PTA29) == 1 && gpio_get(PTA26) == 1 && gpio_get(PTA27) == 1 )
+     {
+         if( switch_mode != 4)//清屏
+         {
+            LED_Fill(0x00);
+         }
+         LED_P6x8Str(20,0,"change speed"); 
+         LED_P6x8Str(4,1,"speed");
+         LED_PrintValueF(4,2,speed_Rule[0],2);
+         LED_PrintValueF(4,3,speed_Rule[1],2);
+         LED_PrintValueF(4,4,speed_Rule[2],2);
+         LED_PrintValueF(4,5,speed_Rule[3],2);
+         LED_PrintValueF(4,6,speed_Rule[4],2);
+         LED_P6x8Str(10,7,"(up-d)");                 
+         LED_P6x8Str(60,1,"speederr");   
+         LED_PrintValueF(60,2,speed_error_Rule[0],2);
+         LED_PrintValueF(60,3,speed_error_Rule[1],2);
+         LED_PrintValueF(60,4,speed_error_Rule[2],2);
+         LED_PrintValueF(60,5,speed_error_Rule[3],2);
+         LED_PrintValueF(60,6,speed_error_Rule[4],2);
+         LED_P6x8Str(60,7,"(left-r)");
+         switch_mode = 4;
+     }
+     /********* 拨码器 0111 *********/
+     /*********  速度最大PWM *********/
+     else if( gpio_get(PTA28) == 0 && gpio_get(PTA29) == 1 && gpio_get(PTA26) == 1 && gpio_get(PTA27) == 1 )
+     {
+         if( switch_mode != 5)//清屏
+         {
+            LED_Fill(0x00);
+         }
+         LED_P6x8Str(20,0,"max_PWM");    
+         LED_PrintShort(5,2,max_PWM);
+         LED_P6x8Str(80,2,"(up-d)");          
+         switch_mode = 5;
+     }
+     /********* 拨码器 0011 *********/
+     /*********  舵机PID *********/
+     else if( gpio_get(PTA28) == 0 && gpio_get(PTA29) == 0 && gpio_get(PTA26) == 1 && gpio_get(PTA27) == 1 )
+     {
+         if( switch_mode != 6)//清屏
+         {
+            LED_Fill(0x00);
+         }
+         LED_P6x8Str(20,0,"change pid"); 
+         LED_P6x8Str(5,1,"P");
+         LED_PrintValueF(4,2,Rule_kp[0],2);
+         LED_PrintValueF(4,3,Rule_kp[1],2);
+         LED_PrintValueF(4,4,Rule_kp[2],2);
+         LED_PrintValueF(4,5,Rule_kp[3],2);
+         LED_PrintValueF(4,6,Rule_kp[4],2);
+         LED_P6x8Str(10,7,"(up-d)");                 
+         LED_P6x8Str(65,1,"D");   
+         LED_PrintValueF(60,2,steer_D,2);
+         LED_P6x8Str(60,7,"(left-r)");
+         switch_mode = 6;
+     }
+     /********* 拨码器 0001 *********/
+     /*********  存读数据 *********/
+     else if( gpio_get(PTA28) == 0 && gpio_get(PTA29) == 0 && gpio_get(PTA26) == 0 && gpio_get(PTA27) == 1 )
+     {
+         if( switch_mode != 7)//清屏
+         {
+            LED_Fill(0x00);
+         }
+         LED_P6x8Str(20,0,"flash order");
+         LED_P6x8Str(4,2,"read flash");
+         LED_P6x8Str(80,2,"(down)");
+         if( read_flash_flag == 1)
+         {
+            LED_P6x8Str(20,3,"ok");
+         }
+         LED_P6x8Str(4,4,"write flash");
+         LED_P6x8Str(80,4,"(left)");        
+         switch_mode = 7;
+         if( write_flash_flag == 1)
+         {
+            LED_P6x8Str(20,5,"ok");
+         }
+     }
+}
+/*******************************************************************************
+ *  @brief      write_flash函数
+ *  @note       
+ *  @warning    18/7/15
+ ******************************************************************************/
+void write_flash(void)
+{
+    flash_erase_sector(SECTOR_NUM);                     //擦除扇区
+                                                       //写入flash数据前，需要先擦除对应的扇区(不然数据会乱)
+    flash_write(SECTOR_NUM, 0, ADC_Maxing[0] );   //写入数据到扇区，偏移地址为0，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 4, ADC_Maxing[1] );   //写入数据到扇区，偏移地址为4，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 8, ADC_Maxing[2] ) ;  //写入数据到扇区，偏移地址为8，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 12, ADC_Maxing[3] ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 16, ADC_Maxing[4] ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 20, (uint16)wait_flag_shizi ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 24, (uint16)turn_left_flag ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 40, (uint16)turn_right_flag ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 28, (uint16)last_flag_shizi ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 32, (uint16)(last_speed_power * 10) ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 36, max_PWM ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);    
+    write_flash_flag = 1;
+}
+
+/*******************************************************************************
+ *  @brief      read_flash函数
+ *  @note       
+ *  @warning    18/7/15
+ ******************************************************************************/
+void read_flash(void)
+{
+   /* ADC_Maxing[0] = flash_read(SECTOR_NUM, 0, uint16);  //读取16位
+    ADC_Maxing[1] = flash_read(SECTOR_NUM, 4, uint16);  //读取16位
+    ADC_Maxing[2] = flash_read(SECTOR_NUM, 8, uint16);  //读取16位
+    ADC_Maxing[3] = flash_read(SECTOR_NUM, 12, uint16);  //读取16位 2字节
+    ADC_Maxing[4] = flash_read(SECTOR_NUM, 16, uint16);  //读取16位 2字节*/
+    wait_flag_shizi = flash_read(SECTOR_NUM, 20, uint16); 
+    turn_left_flag    = flash_read(SECTOR_NUM, 24, uint16); 
+    turn_right_flag    = flash_read(SECTOR_NUM, 40, uint16); 
+    last_flag_shizi  = flash_read(SECTOR_NUM, 28, uint16); 
+    last_speed_power = ((float)(flash_read(SECTOR_NUM, 32, uint16))) / 10; 
+    max_PWM          = flash_read(SECTOR_NUM, 36, uint16); 
+    read_flash_flag  = 1;
 }

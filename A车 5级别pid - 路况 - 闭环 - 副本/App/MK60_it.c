@@ -27,13 +27,18 @@ uint16 delay_flag = 0; //用于周期延时使用
 extern uint16 flag;
 extern uint16 dis_right;
 uint8 wait_flag = 0;
-extern float ADC_Normal[4];
+extern float ADC_Normal[5];
 uint8 shizi = 0;
 extern uint16 dis_back;
 extern float speed_power;
-uint8 wait_flag_shizi = 0;
+uint8 wait_flag_shizi = 2;
+uint8 last_flag_shizi = 4;
 extern uint8 left_flag;
+extern uint8 right_flag;
 uint16 gameover = 0;
+extern uint8 turn_left_flag;
+extern uint8 turn_right_flag;
+float last_speed_power = 0.5;
 /******************************************************************************* 
  *  @brief      PIT0中断服务函数
  *  @note
@@ -42,7 +47,7 @@ uint16 gameover = 0;
 void PIT0_IRQHandler(void)
 {
    /******  10s 停车  *******/
-   /*
+   
    if(times > 0)  
     {
       times--;
@@ -52,31 +57,29 @@ void PIT0_IRQHandler(void)
         beep_off(); 
         if(level == 1) // 正常模式
         {
-            if(ADC_Normal[0] > 0.4 && ADC_Normal[3] > 0.6)
+            if(ADC_Normal[0] > 0.6 && ADC_Normal[3] > 0.6)
             {
                 times = 40;
                 shizi++;
                 beep_on();
-                if( shizi == 2 )
-                {    
-                    speed_power = 0.2;
-                }
-                if( shizi == 3 )
+                if( shizi == wait_flag_shizi )  
                 {    
                     level = 50;
-                    dis_back = 1400; // 用于十字倒车
+                    dis_back = 1600; // 用于十字倒车
                     last_stop = 0; //用于停车
                     dis_right = 0; //用于倒车
+                    left_flag = 0;
+                    right_flag = 0;
                     speed_power = 1;
                 }
-                if( shizi == 7 )
+                if( shizi == last_flag_shizi )  
                 {
-                    speed_power = 0.5; //最后一个十字减速
+                    speed_power = last_speed_power; //最后一个十字减速
                 }
             }
         }
     }  
-    */
+    
     PIT_Flag_Clear(PIT0);       //清中断标志位
 }
 
@@ -145,7 +148,7 @@ void PIT1_IRQHandler(void)
     ///////////////////////////////////////////////////////////////////////////
     else if( level == 50 )  //十字倒车等待
     {
-        if(last_stop <= 100)  stop_car();//给last_stop赋值就可以停车
+        if(last_stop <= 150)  stop_car();//给last_stop赋值就可以停车
         else 
         {
             turn_car();
@@ -154,7 +157,14 @@ void PIT1_IRQHandler(void)
     ///////////////////////////////////////////////////////////////////////////
     else if( level == 51 ) //躲避
     {
-        left_car();
+        if( turn_right_flag == 0)
+        {
+            right_car();
+        }
+        if( turn_left_flag == 0)
+        {
+            left_car();
+        }
     }
     ///////////////////////////////////////////////////////////////////////////
     else if( level == 52 ) //重新启动

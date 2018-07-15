@@ -15,11 +15,11 @@
 extern float Rule_kd[5];
 extern float Rule_kp[5];
 extern float speed_power;
-uint16 ADC_GetMessage[4][SamplingNum]; //采集回来的电感值，一个电感共 SamplingNum 次
-uint16 ADC_Value[4] = {0,0,0,0}; //滤波取平均后的电感值
-uint16 SUM_ADC_GetMessage[4] = {0,0,0,0}; 
-uint16 ADC_Maxing[4] = {3300,3300,3300,3300}; //电感的最大值（后期需要测）
-float ADC_Normal[4] = {0,0,0,0}; //电感归一化后的值（范围 0~1 ）
+uint16 ADC_GetMessage[5][SamplingNum]; //采集回来的电感值，一个电感共 SamplingNum 次
+uint16 ADC_Value[5] = {0,0,0,0,0}; //滤波取平均后的电感值
+uint16 SUM_ADC_GetMessage[5] = {0,0,0,0,0}; 
+uint16 ADC_Maxing[5] = {3300,3300,3300,3300,3300}; //电感的最大值（后期需要测）
+float ADC_Normal[5] = {0,0,0,0}; //电感归一化后的值（范围 0~1 ）
 float fe = 0; //输出的误差
 float fe1,fe2;
 float fe_last; //上一次的误差
@@ -72,11 +72,12 @@ void MessageProcessing(void)
         //var_test4 = adc_once(ADC1_SE13, ADC_12bit);
         ADC_GetMessage[2][i] = adc_once(ADC1_SE14, ADC_12bit); //brown
         ADC_GetMessage[3][i] = adc_once(ADC1_SE15, ADC_12bit);  //orange
+        ADC_GetMessage[4][i] = adc_once(ADC1_SE11, ADC_12bit);  //new
     }
     
     for(i = 0;i < (SamplingNum - 1); i++)  //冒泡法排序 从小到大
         for(j = i + 1;j < SamplingNum; j++)
-            for(k = 0;k < 4; k++)  //选择电感
+            for(k = 0;k < 5; k++)  //选择电感
             {
                 if( ADC_GetMessage[k][i] >= ADC_GetMessage[k][j] )//交换两个数
                 {
@@ -87,17 +88,17 @@ void MessageProcessing(void)
             }
     
     for(i = Min_SamplingNum;i < SamplingNum - Min_SamplingNum; i++)//电感求和
-        for(k = 0;k < 4; k++)
+        for(k = 0;k < 5; k++)
         {
             SUM_ADC_GetMessage[k] += ADC_GetMessage[k][i];
         }
     
-    for(k = 0;k < 4; k++)//取平均
+    for(k = 0;k < 5; k++)//取平均
     {
         ADC_Value[k] = SUM_ADC_GetMessage[k] / (SamplingNum - 2 * Min_SamplingNum);
     }
     
-    for(k = 0;k < 4; k++)//清空求和的数组，以便下一次使用
+    for(k = 0;k < 5; k++)//清空求和的数组，以便下一次使用
     {
         SUM_ADC_GetMessage[k] = 0;
     }
@@ -112,7 +113,7 @@ void MessageProcessing(void)
  ******************************************************************************/
 void ADCnormal(void)
 { 
-  for(k = 0;k < 4; k++)
+  for(k = 0;k < 5; k++)
     {
         ADC_Normal[k] = (float)ADC_Value[k] / (float)ADC_Maxing[k];
     }
@@ -120,6 +121,7 @@ void ADCnormal(void)
   if ( ADC_Normal[2] < 0.001) ADC_Normal[2] = 0.001;
   if ( ADC_Normal[3] < 0.001) ADC_Normal[3] = 0.001;
   if ( ADC_Normal[0] < 0.001) ADC_Normal[0] = 0.001;
+  if ( ADC_Normal[4] < 0.001) ADC_Normal[4] = 0.001;
 }
 
 

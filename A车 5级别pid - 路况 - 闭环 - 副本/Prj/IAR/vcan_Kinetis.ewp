@@ -2305,6 +2305,9 @@
     <group>
         <name>test</name>
         <file>
+            <name>$PROJ_DIR$\..\..\App\mag3110.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\App\start&amp;stop.c</name>
         </file>
         <file>

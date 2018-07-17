@@ -61,7 +61,7 @@ extern float speed_forecast; //预测将要达到的速度（PWM）
 extern float speed_forecast_error; //预测将要达到的速度的偏差（差速）
 extern uint16 delay_flag;
 int16 first_steerctrl;
-uint16 max_PWM = 4800;
+uint16 max_PWM = 4700;
 
 /*******************************************************************************
  *  @brief      test_ADC函数 
@@ -153,6 +153,7 @@ void test_motor(void)
         ADCnormal(); //采集的信息归一化
         ADCerror_diff(); //偏差法计算 误差 和 误差的变化率
        // road_check();
+        Road_Message();
         if(none_steerctrl == 0)
         {
             fuzzy_mem_cal(); //对输入的 fe（误差） 和 fec（误差变化率） 查询隶属度
@@ -283,12 +284,12 @@ void test_steering(void)
 void test_max_ADC(void)
 {
     ADC_GetMessage[0][1] = adc_once(ADC1_SE10, ADC_12bit); //Green
-    ADC_GetMessage[1][1] = adc_once(ADC1_SE12, ADC_12bit); //blue
-    ADC_GetMessage[2][1] = adc_once(ADC1_SE14, ADC_12bit); //brown
-    ADC_GetMessage[3][1] = adc_once(ADC1_SE15, ADC_12bit);  //orange
-    ADC_GetMessage[4][1] = adc_once(ADC1_SE12, ADC_12bit);  //new
+    ADC_GetMessage[1][1] = adc_once(ADC1_SE11, ADC_12bit); //blue
+    ADC_GetMessage[2][1] = adc_once(ADC1_SE15, ADC_12bit); //brown
+    ADC_GetMessage[3][1] = adc_once(ADC1_SE14, ADC_12bit);  //orange
+    ADC_GetMessage[4][1] = adc_once(ADC1_SE13, ADC_12bit);  //new
     
-    for(w = 0;w < 4; w++)
+    for(w = 0;w < 5; w++)
     {
         if( ADC_GetMessage[w][1] >= ADC_max_test[w])
             ADC_max_test[w] = ADC_GetMessage[w][1];

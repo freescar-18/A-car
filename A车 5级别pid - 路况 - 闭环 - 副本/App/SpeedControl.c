@@ -29,12 +29,14 @@ int8 speed_pe,speed_pec;
 float speed_forecast_left = 0;  //左轮预测车速
 float speed_forecast_right = 0;  //右轮预测车速
 
+float speed_round=0;  //入环强制差速参数
+
 /*需要调节的参数*/
 float speed_power = 1;
 float speed_eRule[5] = {0,40,50,60,70}; //输入误差（speed_fe）的范围                                  
 float speed_ecRule[5] = {0,10,20,30,40}; //输入误差的变化率（speed_fec）的范围
-float speed_Rule[5] = {22,23,24,25,26}; //输出预测速度（speed_forecast）的范围 
-float speed_error_Rule[5] = {35,24,13,4,0};  //预测速度偏差的范围
+float speed_Rule[5] = {41,42,43,43,43}; //输出预测速度（speed_forecast）的范围 
+float speed_error_Rule[5] = {27,18,10,4,0};  //预测速度偏差的范围
                                           //
 int speed_rule[6][6] =   //速度规则表
 {
@@ -67,7 +69,7 @@ float speed_Fuzzy_kd[6] = {0,0,0,0,0,/*末尾为0,用来查询模糊表步骤*/ 0};
 /*******************  需要调节的参数  ******************************************/
 float speed_eRule_err[5] = {-8,-6,0,6,8}; //输入误差的范围                                  
 float speed_ecRule_err[5] = {-5,-2,0,2,5}; //输入误差的变化率的范围
-float speed_Rule_kp[5] = {-2.5,-1,0,1,2.5};  //输出的P值的范围                                      
+float speed_Rule_kp[5] = {-3.2,-1.8,0,1.8,3.2};  //输出的P值的范围                                      
 float speed_Rule_kd[5] = {0,0,0,0,0};  //输出的D值的范围
 int speed_rule_kp[6][6]=  //p值规则表
 {
@@ -224,8 +226,8 @@ void speed_fuzzy_solve_forecast(void)//解模糊得到pd值
     }
    // if( speed_forecast > 55) speed_forecast = 55;
    // if( speed_forecast_error > 30) speed_forecast_error = 30;
-    speed_forecast = speed_forecast;
-    speed_forecast_error = speed_forecast_error;
+    speed_forecast =speed_power * speed_forecast;
+    speed_forecast_error = speed_power * speed_forecast_error;
 }
 
 /*******************************************************************************
@@ -238,13 +240,13 @@ void speedcontrol_forecast(void)
 {
     if(fe < 0)
         {
-            speed_forecast_right = (speed_forecast - speed_forecast_error);
-            speed_forecast_left = speed_forecast + speed_forecast_error / 2;
+            speed_forecast_right = (speed_forecast - speed_forecast_error)+speed_round;
+            speed_forecast_left = speed_forecast + speed_forecast_error / 2 - speed_round;
         }
         else
         {
-            speed_forecast_left = (speed_forecast - speed_forecast_error);
-            speed_forecast_right = speed_forecast + speed_forecast_error / 2;
+            speed_forecast_left = (speed_forecast - speed_forecast_error)-speed_round;
+            speed_forecast_right = speed_forecast + speed_forecast_error / 2  + speed_round;
         }
     
     speed_fe_last_left = speed_fe_left;

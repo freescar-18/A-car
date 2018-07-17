@@ -14,7 +14,7 @@
 /**************************  全局变量   ***************************************/
 extern float Rule_kd[5];
 extern float Rule_kp[5];
-extern float speed_power;
+extern float speed_power,speed_round;
 uint16 ADC_GetMessage[5][SamplingNum]; //采集回来的电感值，一个电感共 SamplingNum 次
 uint16 ADC_Value[5] = {0,0,0,0,0}; //滤波取平均后的电感值
 uint16 SUM_ADC_GetMessage[5] = {0,0,0,0,0}; 
@@ -56,6 +56,10 @@ uint8 none_steerctrl = 0;
 uint16 cross_left = 0;
 uint cross_right = 0;
 
+uint16 round_left = 0,round_left_up=0,round_right_up = 0,round_right_down=0,round_right_up_2=0,round_right=0,cross_up=0,crossroad=0,crossroads=0,round_is=0,round_in=0;
+float ADC_Normal_last[4]= {0};//上一次电感值
+
+
 /*******************************************************************************
  *  @brief      MessageProcessing函数
  *  @note       ADC信息采集处理，无归一化 
@@ -68,11 +72,11 @@ void MessageProcessing(void)
     {   
         //var_test1 = adc_once(ADC1_SE10, ADC_12bit);
         ADC_GetMessage[0][i] = adc_once(ADC1_SE10, ADC_12bit); //Green
-        ADC_GetMessage[1][i] = adc_once(ADC1_SE12, ADC_12bit); //blue
+        ADC_GetMessage[1][i] = adc_once(ADC1_SE11, ADC_12bit); //blue
         //var_test4 = adc_once(ADC1_SE13, ADC_12bit);
-        ADC_GetMessage[2][i] = adc_once(ADC1_SE14, ADC_12bit); //brown
-        ADC_GetMessage[3][i] = adc_once(ADC1_SE15, ADC_12bit);  //orange
-        ADC_GetMessage[4][i] = adc_once(ADC1_SE11, ADC_12bit);  //new
+        ADC_GetMessage[2][i] = adc_once(ADC1_SE15, ADC_12bit); //brown
+        ADC_GetMessage[3][i] = adc_once(ADC1_SE14, ADC_12bit);  //orange
+        ADC_GetMessage[4][i] = adc_once(ADC1_SE13, ADC_12bit);  //new
     }
     
     for(i = 0;i < (SamplingNum - 1); i++)  //冒泡法排序 从小到大
@@ -451,4 +455,140 @@ void Road_Id_Get()
         //     DELAY_MS(100);
              
         }
+}
+
+/*******************************************************************************
+ *  @brief      Road_Message()函数
+ *  @note       路况
+                1、环位置判断 ；round_left_up，round_left
+                              round_right_up,round_right_down,round_right
+                2、十字判断  ：cross_up，cross。crossrosd
+                
+ *  @warning    18/4/7 v5.0
+ ******************************************************************************/
+void Road_Message()
+{
+  //速度调整
+  if(ADC_Normal[4]<=1.6)
+  {
+    speed_power=1.0;
+  }
+  else if(round_is!=0)
+  {
+    speed_power=0.2;
+  }
+  else
+  {
+    speed_power=0.2;
+  }
+  
+  
+  
+  //环位置判断      中间电感值>于1.85，说明是环交点处
+  if((ADC_Normal[4]>=1.95)&&(round_is==0))
+  {
+    round_is=1;
+    //speed_power=0.3;
+  }
+  
+  if(round_is==1)//在环交点处
+  {
+    
+    //环在右边  round_right=1   
+    if((round_left == 0)&&(round_right == 0)&&(ADC_Normal[0] >= 0.300))
+    {
+       if(ADC_Normal[0]>=ADC_Normal[3])
+         round_right=1;
+    }
+   
+    //环在左边   round_left=1    
+    else if((round_left == 0)&&(round_right == 0)&&(ADC_Normal[3] >= 0.300))
+    {
+      if (ADC_Normal[3]>=ADC_Normal[0])
+        round_left=1;
+    }
+    else if(ADC_Normal[4]<=1.90)   //打角标志
+    {
+      round_is=2;
+      
+    }
+  }
+  //十字判断     两个直的>0.8+两个直的<0.1   -->过了一次十字，crossroad=1;    总数+1，crossroads+=1；
+  else if((ADC_Normal[0] >= 0.600)&&(ADC_Normal[3] >= 0.600))
+  {
+    //if((ADC_Normal[2]+ADC_Normal[1])<=(ADC_Normal[0]+ADC_Normal[3]))
+    //cross_up=1;//上升
+ // }
+  //if((ADC_Normal[0] <= 0.400)&&(ADC_Normal[3] <= 0.400)&&(cross_up==1))
+ // {
+    crossroad=1;
+    crossroads+=1;
+    //cross_up=0;
+  }
+  
+  //记录上一次电感值
+  
+ //调用环岛进出函数
+  Round_about();
+}
+
+/*******************************************************************************
+ *  @brief      Road_about()函数
+ *  @note       环岛进出
+                1、入环岛点判断 ；round_left，round_right
+                2、出环岛点判断  ：cross_up，cross。crossrosd
+                
+ *  @warning    18/4/7 v5.0
+ ******************************************************************************/
+void Round_about()
+{
+  //入环判断       round_is==2
+  if(round_is==2)
+  {
+  //环在右侧 
+    if(round_right==1)
+    {
+        none_steerctrl=1;//关闭模糊pid
+        steerctrl=756;   //大死角
+        speed_round= -13;//      强制差数
+        
+        
+      if((fe>70)||(fe< -70))
+      {
+        none_steerctrl=0; //开启模糊pid
+        
+        round_in=1;   //
+        speed_power=0.4;
+        
+        round_right=0; //
+        speed_round=0; //差速清零
+      }
+      //round_right=0;
+    }
+    
+  //环在左侧
+      if(round_left==1)
+    {
+          
+        none_steerctrl=1;//关闭模糊pid
+        steerctrl=910;//大死角
+        speed_round=13;//      强制差数
+     
+        if((fe>70)||(fe< -70))
+      {
+        none_steerctrl=0;
+        round_in=1;
+        
+        speed_power=0.2;
+        round_left=0;
+        speed_round=0;
+      }
+     //round_left=0; 
+    }
+      // round_is=0
+  }
+  if(round_in==1)
+  {
+      round_is=0;
+  }
 }

@@ -62,7 +62,7 @@ void PIT0_IRQHandler(void)
                 times = 40;
                 shizi++;
                 beep_on();
-                if( shizi == wait_flag_shizi )  
+               /* if( shizi == wait_flag_shizi )  
                 {    
                     level = 50;
                     dis_back = 1600; // 用于十字倒车
@@ -75,7 +75,7 @@ void PIT0_IRQHandler(void)
                 if( shizi == last_flag_shizi )  
                 {
                     speed_power = last_speed_power; //最后一个十字减速
-                }
+                }*/
             }
         }
     }  

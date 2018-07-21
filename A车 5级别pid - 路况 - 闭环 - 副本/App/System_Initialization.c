@@ -105,7 +105,7 @@ void GPIO_Initialization(void)
     port_init(PTB3, ALT1 | IRQ_FALLING | PULLUP ); //初始化 PTE2管脚，复用功能为GPIO ，下降沿触发中断，上拉电阻
     port_init(PTA25, ALT1 | IRQ_FALLING | PULLUP ); //初始化 PTE3管脚，复用功能为GPIO ，下降沿触发中断，上拉电阻
     //干簧管初始化
-    port_init(PTE10, ALT1 | IRQ_FALLING | PULLUP ); //初始化 PTE10管脚，复用功能为GPIO ，下降沿触发中断，上拉电阻
+    port_init(PTC2, ALT1 | IRQ_FALLING | PULLUP ); //初始化 PTE10管脚，复用功能为GPIO ，下降沿触发中断，上拉电阻
     //超声波模块测距
   //  port_init( PTC4, ALT1 | IRQ_RISING | PULLUP ); //初始化 PTB18管脚，复用功能为GPIO
     set_vector_handler(PORTE_VECTORn ,PORTE_IRQHandler); //设置PORTE的中断服务函数为 PORTE_IRQHandler
@@ -115,9 +115,9 @@ void GPIO_Initialization(void)
     //蜂鸣器初始化
     gpio_init (PTE1, GPO, 0); //初始化 PTC8管脚，输出，初始低电平
     
-    MAG3110_Init();
-    mag_read.mag_x_offset = -885;
-    mag_read.mag_y_offset = 680;
+   // MAG3110_Init();
+   // mag_read.mag_x_offset = -885;
+   // mag_read.mag_y_offset = 680;
     
 }
 
@@ -176,7 +176,7 @@ void ISR_Initialization(void)
    // beep_on();  //初始化成功响一下
    // DELAY();
    // beep_off();
-    DELAY_MS(10);
+    DELAY_MS(1000);
    // EnableInterrupts; //同时启动中断
     
 }

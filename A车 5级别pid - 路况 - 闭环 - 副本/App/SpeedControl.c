@@ -226,7 +226,7 @@ void speed_fuzzy_solve_forecast(void)//解模糊得到pd值
     }
    // if( speed_forecast > 55) speed_forecast = 55;
    // if( speed_forecast_error > 30) speed_forecast_error = 30;
-    speed_forecast =speed_power * speed_forecast;
+    speed_forecast = speed_power * speed_forecast;
     speed_forecast_error = speed_power * speed_forecast_error;
 }
 

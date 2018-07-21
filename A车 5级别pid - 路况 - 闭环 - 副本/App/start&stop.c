@@ -40,6 +40,7 @@ uint8 shizi_turn_flag = 0;
 extern uint8 level;
 extern uint8 turn_left_flag;
 extern uint8 turn_right_flag;
+float max_shizi = 0.7;
 /*******************************************************************************
  *  @brief      start_car(void) 
  *  @note       发车函数 车会自动向右边跑
@@ -96,11 +97,11 @@ void start_car(void)
             ////////////////////////////////////////////////////////////////////////
             
             ///////////////////////////左轮速度/////////////////////////////////////
-            ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,2500); //输出电机PWM  正转
+            ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,3000); //输出电机PWM  正转
             ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM 
             ////////////////////////////////////////////////////////////////////////
             /////////////////////////////右轮速度////////////////////////////////////
-            ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,2500); //输出电机PWM  正转
+            ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,3000); //输出电机PWM  正转
             ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM 
             ///////////////////////////////////////////////////////////////////////
             ////////////////////////////停车///////////////////////////////////////
@@ -170,13 +171,13 @@ void stop_car(void)
                 if(speedctrl_left < -9500) speedctrl_left_opp = 9500;
                 else speedctrl_left_opp = -speedctrl_left;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,9000); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,9500); //输出电机PWM  
             }
             else  //左轮速度没溢出  
             {
                 if(speedctrl_left > 100) speedctrl_left = 100;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,9000); //输出电机PWM 
+                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,9500); //输出电机PWM 
             }
             ////////////////////////////////////////////////////////////////////////
             /////////////////////////////右轮速度////////////////////////////////////
@@ -185,13 +186,13 @@ void stop_car(void)
                 if(speedctrl_right < -9500) speedctrl_right_opp = 9500;
                 else speedctrl_right_opp = -speedctrl_right;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,9000); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,9500); //输出电机PWM  
             }
             else  //右轮速度没溢出
             {
                 if(speedctrl_right > 100) speedctrl_right = 100;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,9000); //输出电机PWM 
+                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,9500); //输出电机PWM 
             }
             ////////////////////////////////////////////////////////////////////////
             ////////////////////////////停车///////////////////////////////////////
@@ -334,9 +335,9 @@ void turn_car_shizi(void)
             speed_fuzzy_solve_right();
             speedcontrol_right(); 
          // Road_Id_Get();
-  /**/      if((ADC_Normal[0] > 0.4 && ADC_Normal[3] > 0.6))
+  /**/      if((ADC_Normal[0] > 0.6 && ADC_Normal[3] > 0.6))
   /**/      {
-  /**/          level = 1;
+  /**/         level = 1; 
   /**/      }
             else
             {
@@ -353,11 +354,11 @@ void turn_car_shizi(void)
             ////////////////////////////////////////////////////////////////////////           
             ///////////////////////////左轮速度/////////////////////////////////////
                 ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,4300); //输出电机PWM  反转
+                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,3500); //输出电机PWM  反转
             ////////////////////////////////////////////////////////////////////////
             /////////////////////////////右轮速度////////////////////////////////////
                 ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,4300); //输出电机PWM  反转
+                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,3500); //输出电机PWM  反转
             ////////////////////////////////////////////////////////////////////////
             ////////////////////////////停车///////////////////////////////////////
             if((ADC_Value[0] <= 10) && (ADC_Value[1] <= 10) && (ADC_Value[2] <= 10) && (ADC_Value[3] <= 10) ) //如果四个电感都偏小，则将flag变成1，然后进入下面的死循环
@@ -430,16 +431,16 @@ void right_car(void)
   /**/   //  {
   /**/   //       steerctrl = Minsteering;
   /**/   //       left_flag = 1;
-  /**/   //   }
-           
-  /**/      if(ADC_Normal[0] < 0.2 && ADC_Normal[3] < 0.2 && right_flag == 1)
+  /**/   //   }    440788918087
+  /**/      if(  ( dis_right > 1100 ) && right_flag == 1 )
   /**/      {
   /**/          flag = 1;
   /**/      }
-  /**/      if((ADC_Normal[0] > 0.6 && ADC_Normal[3] > 0.6) || right_flag == 1)
+  /**/      if((ADC_Normal[0] > max_shizi && ADC_Normal[3] > max_shizi) || right_flag == 1)
   /**/      {
-  /**/          steerctrl = Minsteering;
+  /**/          steerctrl = Minsteering + 20;
   /**/          right_flag = 1;
+                dis_right += speed_now_right;
   /**/      }
             /////////////////////////////舵机///////////////////////////////////////
             if(steerctrl <  Minsteering) steerctrl =  Minsteering;  //舵机转角保护
@@ -448,11 +449,11 @@ void right_car(void)
             ////////////////////////////////////////////////////////////////////////
             
             ///////////////////////////左轮速度/////////////////////////////////////
-                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,1500); //输出电机PWM  正转
+                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,2300); //输出电机PWM  正转
                 ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM 
             ////////////////////////////////////////////////////////////////////////
             /////////////////////////////右轮速度////////////////////////////////////
-                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,1500); //输出电机PWM  正转
+                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,2300); //输出电机PWM  正转
                 ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM 
             ///////////////////////////////////////////////////////////////////////
             ////////////////////////////停车///////////////////////////////////////
@@ -522,14 +523,15 @@ void left_car(void)
   /**/   //       left_flag = 1;
   /**/   //   }
            
-  /**/      if(ADC_Normal[0] < 0.2 && ADC_Normal[3] < 0.2 && left_flag == 1)
+  /**/      if( ( dis_right > 1500 ) && left_flag == 1 )
   /**/      {
   /**/          flag = 1;
   /**/      }
-  /**/      if((ADC_Normal[0] > 0.6 && ADC_Normal[3] > 0.6) || left_flag == 1)
+  /**/      if((ADC_Normal[0] > max_shizi && ADC_Normal[3] > max_shizi) || left_flag == 1)
   /**/      {
-  /**/          steerctrl = Maxsteering;
+  /**/          steerctrl = Maxsteering - 20;
   /**/          left_flag = 1;
+                dis_right += speed_now_right;
   /**/      }
             /////////////////////////////舵机///////////////////////////////////////
             if(steerctrl <  Minsteering) steerctrl =  Minsteering;  //舵机转角保护
@@ -549,7 +551,7 @@ void left_car(void)
             {   
                 if(speedctrl_left < 1500) speedctrl_left = 1500;
                 if(speedctrl_left > 1500) speedctrl_left = 1500;
-                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,1500); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,2300); //输出电机PWM  
                 ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM 
             }
             ////////////////////////////////////////////////////////////////////////
@@ -565,7 +567,7 @@ void left_car(void)
             {
                 if(speedctrl_right < 1500) speedctrl_right = 1500;
                 if(speedctrl_right > 1500) speedctrl_right = 1500;
-                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,1500); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,2300); //输出电机PWM  
                 ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM 
             }
             ///////////////////////////////////////////////////////////////////////

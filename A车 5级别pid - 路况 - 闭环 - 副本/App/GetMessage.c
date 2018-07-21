@@ -60,7 +60,7 @@ uint cross_right = 0;
 uint16 round_is=0,round_in=0,round_out=0,round_over=0,round_num=0,round_stop=0,max_PWM_new=0,round_in_count=0,round_stop_flag=1;//round_vaule[3]={0},round_average[2],
 //环岛调整参数
 /////////////////////////////////////////////////////////////////////////////// 
-uint16 round_vaule=0;// round_vaule=0       不入环
+uint16 round_vaule=1;// round_vaule=0       不入环
                        // round_vaule=1       环在左边
                        // round_vaule=2       环在右边
 //识别阈值

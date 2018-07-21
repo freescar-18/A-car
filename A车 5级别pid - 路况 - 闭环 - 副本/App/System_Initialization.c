@@ -105,7 +105,7 @@ void GPIO_Initialization(void)
     port_init(PTB3, ALT1 | IRQ_FALLING | PULLUP ); //初始化 PTE2管脚，复用功能为GPIO ，下降沿触发中断，上拉电阻
     port_init(PTA25, ALT1 | IRQ_FALLING | PULLUP ); //初始化 PTE3管脚，复用功能为GPIO ，下降沿触发中断，上拉电阻
     //干簧管初始化
-    port_init(PTC2, ALT1 | IRQ_FALLING | PULLUP ); //初始化 PTE10管脚，复用功能为GPIO ，下降沿触发中断，上拉电阻
+    port_init(PTE10, ALT1 | IRQ_FALLING | PULLUP ); //初始化 PTE10管脚，复用功能为GPIO ，下降沿触发中断，上拉电阻
     //超声波模块测距
   //  port_init( PTC4, ALT1 | IRQ_RISING | PULLUP ); //初始化 PTB18管脚，复用功能为GPIO
     set_vector_handler(PORTE_VECTORn ,PORTE_IRQHandler); //设置PORTE的中断服务函数为 PORTE_IRQHandler

@@ -32,7 +32,7 @@ float speed_forecast_right = 0;  //右轮预测车速
 float speed_round=0;  //入环强制差速参数
 
 /*需要调节的参数*/
-float speed_power = 1;
+float speed_power = 1,speed_pp=1;
 float speed_eRule[5] = {0,6,12,18,24}; //输入误差（speed_fe）的范围                                  
 float speed_ecRule[5] = {0,10,20,30,40}; //输入误差的变化率（speed_fec）的范围
 float speed_Rule[5] = {41,42,43,43,43}; //输出预测速度（speed_forecast）的范围 
@@ -226,8 +226,8 @@ void speed_fuzzy_solve_forecast(void)//解模糊得到pd值
     }
    // if( speed_forecast > 55) speed_forecast = 55;
    // if( speed_forecast_error > 30) speed_forecast_error = 30;
-    speed_forecast = speed_power * speed_forecast;
-    speed_forecast_error = speed_power * speed_forecast_error;
+    speed_forecast = speed_power * speed_forecast*speed_pp;
+    speed_forecast_error = speed_power * speed_forecast_error*speed_pp;
 }
 
 /*******************************************************************************

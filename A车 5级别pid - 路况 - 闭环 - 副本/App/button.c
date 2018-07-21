@@ -97,6 +97,7 @@ void PORTA_IRQHandler(void)
                 ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM  right-反
                 DELAY_MS(3000);
                 start_flag = 200;
+                flag = 0;
                 level = 1;
             }
             ones = 2;
@@ -363,13 +364,34 @@ void PORTE_IRQHandler(void)
 
         /*  以下为用户任务  */
         //beep_on();
-        if(start_flag == 0 && level != 40 && level != 100)
-        {
-/**/    //    level = 40;
-/**/    //    dis_back = 1000;
-/**/     //   last_stop = 0;
-/**/    //    dis_right = 0;
-        }
+          if(start_flag == 0 && level != 40 && level!= 100 && level != 86)
+          {
+              if (level == 88) //自己冲
+              {
+                  level = 40;
+                  dis_back = 0;
+                  dis_right = 0;
+                  last_stop = 90;
+                  wait_flag = 1;
+              }
+              else
+              {
+                  level = 40;
+                  dis_back = turn_car_dis;
+                  dis_right = 0;
+                  if( speed_power < 0.5)
+                  {
+                      last_stop = 80;
+                  }
+                  else
+                  {
+                      last_stop = 0;
+                  }
+                  wait_flag = 0;
+              }
+             // beep_on();
+            
+          }
         /*  以上为用户任务  */
     }
 
@@ -400,7 +422,7 @@ void PORTC_IRQHandler(void)
       {
           PORTC_ISFR  = (1 << m);        //写1清中断标志位
            /*  以下为用户任务  */
-          if(start_flag == 0 && level != 40 && level!= 100 && level != 86)
+         /* if(start_flag == 0 && level != 40 && level!= 100 && level != 86)
           {
               if (level == 88) //自己冲
               {
@@ -427,7 +449,7 @@ void PORTC_IRQHandler(void)
               }
              // beep_on();
             
-          }
+          }*/
           /*  以上为用户任务  */
       }
 }

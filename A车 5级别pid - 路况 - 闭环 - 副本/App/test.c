@@ -61,8 +61,9 @@ extern float speed_forecast; //预测将要达到的速度（PWM）
 extern float speed_forecast_error; //预测将要达到的速度的偏差（差速）
 extern uint16 delay_flag;
 int16 first_steerctrl;
-uint16 max_PWM = 4700;
+uint16 max_PWM = 5100;
 
+extern uint16 round_stop,round_vaule;//环岛参数
 /*******************************************************************************
  *  @brief      test_ADC函数 
  *  @note       ADC显示测试函数，用于前期测试电感值，编码器，OLED显示  
@@ -153,7 +154,11 @@ void test_motor(void)
         ADCnormal(); //采集的信息归一化
         ADCerror_diff(); //偏差法计算 误差 和 误差的变化率
        // road_check();
-        Road_Message();
+        
+        if(round_vaule!=0)//环岛
+        {
+          Road_Message();
+        }        
         if(none_steerctrl == 0)
         {
             fuzzy_mem_cal(); //对输入的 fe（误差） 和 fec（误差变化率） 查询隶属度
@@ -184,13 +189,14 @@ void test_motor(void)
             speed_fuzzy_solve_right();
             speedcontrol_right(); 
          // Road_Id_Get();    
-            ///////////////////////////左轮速度/////////////////////////////////////
-            if(0)  //左轮速度溢出  
+            ///////////////////////////左轮速度/////////////////////////////////////      环岛进环前刹车   round_stop>0
+            if(round_stop>0)  //左轮速度溢出   shache
             {
                 if(speedctrl_left < -200) speedctrl_left_opp = 200;
                 else speedctrl_left_opp = -speedctrl_left;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,speedctrl_left_opp); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,7000); //输出电机PWM  
+                round_stop-=1;
             }
             else  //左轮速度没溢出
             {   
@@ -201,12 +207,13 @@ void test_motor(void)
             }
             ////////////////////////////////////////////////////////////////////////
             /////////////////////////////右轮速度////////////////////////////////////
-            if(0)  //右轮速度溢出
+            if(round_stop>0)  //右轮速度溢出 shache
             {
                 if(speedctrl_right < -200) speedctrl_right_opp = 200;
                 else speedctrl_right_opp = -speedctrl_right;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,speedctrl_right_opp); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,7000); //输出电机PWM 
+                round_stop-=1;
             }
             else  //右轮速度没溢出
             {
@@ -284,10 +291,10 @@ void test_steering(void)
 void test_max_ADC(void)
 {
     ADC_GetMessage[0][1] = adc_once(ADC1_SE10, ADC_12bit); //Green
-    ADC_GetMessage[1][1] = adc_once(ADC1_SE11, ADC_12bit); //blue
-    ADC_GetMessage[2][1] = adc_once(ADC1_SE15, ADC_12bit); //brown
-    ADC_GetMessage[3][1] = adc_once(ADC1_SE14, ADC_12bit);  //orange
-    ADC_GetMessage[4][1] = adc_once(ADC1_SE13, ADC_12bit);  //new
+    ADC_GetMessage[1][1] = adc_once(ADC1_SE12, ADC_12bit); //blue
+    ADC_GetMessage[2][1] = adc_once(ADC1_SE13, ADC_12bit); //brown
+    ADC_GetMessage[3][1] = adc_once(ADC1_SE15, ADC_12bit);  //orange
+    ADC_GetMessage[4][1] = adc_once(ADC1_SE11, ADC_12bit);  //new
     
     for(w = 0;w < 5; w++)
     {

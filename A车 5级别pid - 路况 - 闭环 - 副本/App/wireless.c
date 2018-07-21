@@ -11,6 +11,7 @@ int16 send_b=10000;//10000对应万位，以此类推
 extern uint8 uSendBuf[UartDataNum*2]={0};                //****UartDataNum是上位机设置通道数目，需保持一致
 extern uint8 FreeCarsDataNum=UartDataNum*2;
 extern struct _MAG mag_read;
+
 /*
 extern float speed_forecast_left;
 extern float speed_forecast_right;
@@ -20,7 +21,7 @@ extern int16 speed_now_left,speed_now_right;
 extern float speed_fe; 
 */
 extern uint16 clj;
-extern uint16 round_left,round_right,cross_up,crossroad,crossroads;
+extern uint16 round_left,round_right,cross_up,crossroad,crossroads,round_is,round_in,round_over,round_out;
 extern uint8 none_steerctrl;
 /*******************************************************************************
  *  @brief      CRC_CHECK函数
@@ -229,27 +230,30 @@ void Freecars_scope(void)
        OutData[2] = (int)(100 * ADC_Normal[2]);//ADC_Value[2];//speed_now_left;//ADC_Value[2];//;
        OutData[3] = (int)(100 * ADC_Normal[3]);//ADC_Value[3];
        OutData[4] = (int)(100 * ADC_Normal[4]);
-        if(round_left==1)
+        if(round_is==2)
         {
-          OutData[5] = 500;
-        //  round_left=!round_left;
+          OutData[5] = 600;
+         // round_is=!round_is;
         }
   
-        if(round_right==1)
+        if(round_in==1)
         {
           OutData[6] = 500;
-         // round_right=!round_right;
+          //round_right=!round_right;
         }
-        if(crossroad==1)
+        if(round_out==1)
         {
-          OutData[7] = 500;
-          crossroad=!crossroad;
+          OutData[7] = 400;
+        //  crossroad=!crossroad;
         }
-        if(none_steerctrl==1)
+        if(round_over==1)
         {
           OutData[8] = 300;
         }
-        
+        if( crossroad==1)
+        {
+          OutData[9] = 650;
+        }
        for(i=1;i<UartDataNum;i++)
        {
          push(i,OutData[i-1]);
@@ -260,5 +264,7 @@ void Freecars_scope(void)
    // }
       OutData[5] =0;
       OutData[6] =0;
-      OutData[7] =0; 
+      OutData[7] =0;
+      OutData[8] =0;
+      OutData[9] =0;
 }

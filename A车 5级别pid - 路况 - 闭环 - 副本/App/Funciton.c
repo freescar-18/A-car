@@ -68,7 +68,11 @@ extern float last_speed_power;
 extern uint16 max_PWM;
 uint8 write_flash_flag = 0;
 uint8 read_flash_flag = 0;
-
+uint16 turn_car_dis = 2200;
+uint16 last_start_flag = 400;
+extern float max_shizi;
+extern uint8 gogogo;
+extern float eRule[5];
 /*******************************************************************************
  *  @brief      beep_on函数
  *  @note       蜂鸣器一直响
@@ -122,9 +126,9 @@ void oled_view(void)
          LED_PrintShort(90,4,ADC_Value[3]); 
          LED_PrintShort(90,5,ADC_Value[4]); 
          LED_PrintValueF(40,4,fe,3);  //显示输入的误差
+         LED_PrintShort(40,6,level); 
          LED_PrintShort(90,7,speed_now_right); 
          LED_PrintShort(4,7,speed_now_left); 
-         switch_mode = 0;
          switch_mode = 0;
      }
      /********* 拨码器 1000 *********/
@@ -135,12 +139,15 @@ void oled_view(void)
          {
             LED_Fill(0x00);
          }
-         LED_P6x8Str(40,0,"the max ADC");
-         LED_PrintShort(4,2,ADC_Maxing[0]); 
-         LED_PrintShort(4,3,ADC_Maxing[1]); 
-         LED_PrintShort(4,4,ADC_Maxing[2]); 
-         LED_PrintShort(4,5,ADC_Maxing[3]); 
-         LED_PrintShort(4,6,ADC_Maxing[4]); 
+         LED_P6x8Str(4,0,"stop message");  
+         
+         LED_P6x8Str(4,2,"how many dis:");
+         LED_P6x8Str(4,3,"turn_car_dis=");
+         LED_PrintShort(4,4,turn_car_dis);  
+         LED_P6x8Str(80,4,"(up-d)");
+         LED_P6x8Str(4,6,"last_start_flag=");
+         LED_PrintShort(4,7,last_start_flag);  
+         LED_P6x8Str(80,7,"(left-r)");
          switch_mode = 1;
      }
      /********* 拨码器 1100 *********/
@@ -205,11 +212,11 @@ void oled_view(void)
          LED_PrintValueF(4,6,speed_Rule[4],2);
          LED_P6x8Str(10,7,"(up-d)");                 
          LED_P6x8Str(60,1,"speederr");   
-         LED_PrintValueF(60,2,speed_error_Rule[0],2);
-         LED_PrintValueF(60,3,speed_error_Rule[1],2);
+         LED_PrintValueF(60,2,speed_error_Rule[4],2);
+         LED_PrintValueF(60,3,speed_error_Rule[3],2);
          LED_PrintValueF(60,4,speed_error_Rule[2],2);
-         LED_PrintValueF(60,5,speed_error_Rule[3],2);
-         LED_PrintValueF(60,6,speed_error_Rule[4],2);
+         LED_PrintValueF(60,5,speed_error_Rule[1],2);
+         LED_PrintValueF(60,6,speed_error_Rule[0],2);
          LED_P6x8Str(60,7,"(left-r)");
          switch_mode = 4;
      }
@@ -222,8 +229,14 @@ void oled_view(void)
             LED_Fill(0x00);
          }
          LED_P6x8Str(20,0,"max_PWM");    
-         LED_PrintShort(5,2,max_PWM);
-         LED_P6x8Str(80,2,"(up-d)");          
+         LED_PrintShort(5,1,max_PWM);
+         LED_P6x8Str(80,1,"(up-d)");     
+         LED_P6x8Str(40,2,"the max ADC");
+         LED_PrintShort(4,3,ADC_Maxing[0]); 
+         LED_PrintShort(4,4,ADC_Maxing[1]); 
+         LED_PrintShort(4,5,ADC_Maxing[2]); 
+         LED_PrintShort(4,6,ADC_Maxing[3]); 
+         LED_PrintShort(4,7,ADC_Maxing[4]); 
          switch_mode = 5;
      }
      /********* 拨码器 0011 *********/
@@ -270,6 +283,40 @@ void oled_view(void)
             LED_P6x8Str(20,5,"ok");
          }
      }
+     /********* 拨码器 0110 *********/
+     /*********  十字最大电感值 *********/
+     else if( gpio_get(PTA28) == 0 && gpio_get(PTA29) == 1 && gpio_get(PTA26) == 1 && gpio_get(PTA27) == 0 )
+     {
+         if( switch_mode != 8)//清屏
+         {
+            LED_Fill(0x00);
+         }
+         LED_P6x8Str(4,0,"shizi message");  
+         LED_P6x8Str(4,1,"max_shizi=");
+         LED_PrintValueF(4,2,max_shizi,3);
+         LED_P6x8Str(80,2,"(up-d)");
+         LED_P6x8Str(4,4,"gogogo=");
+         LED_PrintShort(4,5,gogogo);
+         LED_P6x8Str(80,5,"(left-r)");
+         switch_mode = 8;
+     }
+     /********* 拨码器 1010 *********/
+     /*********   p范围   *********/
+     else if( gpio_get(PTA28) == 1 && gpio_get(PTA29) == 0 && gpio_get(PTA26) == 1 && gpio_get(PTA27) == 0 )
+     {
+         if( switch_mode != 9)//清屏
+         {
+            LED_Fill(0x00);
+         }
+         LED_P6x8Str(20,0,"eRule"); 
+         LED_PrintValueF(4,2,eRule[0],2);
+         LED_PrintValueF(4,3,eRule[1],2);
+         LED_PrintValueF(4,4,eRule[2],2);
+         LED_PrintValueF(4,5,eRule[3],2);
+         LED_PrintValueF(4,6,eRule[4],2);
+         LED_P6x8Str(10,7,"(up-d)"); 
+         switch_mode = 9;
+     }
 }
 /*******************************************************************************
  *  @brief      write_flash函数
@@ -302,6 +349,14 @@ void write_flash(void)
     DELAY_MS(50);
     flash_write(SECTOR_NUM, 36, max_PWM ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
     DELAY_MS(50);    
+    flash_write(SECTOR_NUM, 40, turn_car_dis ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 44, last_start_flag ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 48, (uint16)(max_shizi * 10)  ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 52, (uint16)gogogo  ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
     write_flash_flag = 1;
 }
 
@@ -317,11 +372,15 @@ void read_flash(void)
     ADC_Maxing[2] = flash_read(SECTOR_NUM, 8, uint16);  //读取16位
     ADC_Maxing[3] = flash_read(SECTOR_NUM, 12, uint16);  //读取16位 2字节
     ADC_Maxing[4] = flash_read(SECTOR_NUM, 16, uint16);  //读取16位 2字节*/
-    wait_flag_shizi = flash_read(SECTOR_NUM, 20, uint16); 
-    turn_left_flag    = flash_read(SECTOR_NUM, 24, uint16); 
-    turn_right_flag    = flash_read(SECTOR_NUM, 40, uint16); 
+    wait_flag_shizi  = flash_read(SECTOR_NUM, 20, uint16); 
+    turn_left_flag   = flash_read(SECTOR_NUM, 24, uint16); 
+    turn_right_flag  = flash_read(SECTOR_NUM, 40, uint16); 
     last_flag_shizi  = flash_read(SECTOR_NUM, 28, uint16); 
     last_speed_power = ((float)(flash_read(SECTOR_NUM, 32, uint16))) / 10; 
     max_PWM          = flash_read(SECTOR_NUM, 36, uint16); 
+    turn_car_dis     = flash_read(SECTOR_NUM, 40, uint16); 
+    last_start_flag  = flash_read(SECTOR_NUM, 44, uint16);
+    max_shizi        = ((float)(flash_read(SECTOR_NUM, 48, uint16))) / 10; 
+    gogogo           = flash_read(SECTOR_NUM, 52, uint16);
     read_flash_flag  = 1;
 }

@@ -27,13 +27,13 @@ void System_Initialization(void); //总初始化
 #define  PIT2_TIMER  (500)  //定时器 2 所用的时间  us
 #define  PIT3_TIMER  (4000)  //定时器 3 所用的时间  ms
 
-#define Midsteering 1500  //100hz-1340    50hz-750
-#define Minsteering 1368  //right    100hz-1490   50hz-682
-#define Maxsteering 1660 //left 左转    100hz-1660   50hz-832
+#define Midsteering 834  //100hz-1340    50hz-750
+#define Minsteering 756  //right    100hz-1490   50hz-682
+#define Maxsteering 910 //left 左转    100hz-1660   50hz-832
 
 #define  S3010_FTM   FTM1
 #define  S3010_CH    FTM_CH0 //FTM1_CH0_PIN   PTB0
-#define  S3010_HZ    (100)
+#define  S3010_HZ    (50)
 
 #define MOTOR_HZ    (13*1000)
 

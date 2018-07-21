@@ -70,7 +70,7 @@ void MessageProcessing(void)
         ADC_GetMessage[0][i] = adc_once(ADC1_SE10, ADC_12bit); //Green
         ADC_GetMessage[1][i] = adc_once(ADC1_SE12, ADC_12bit); //blue
         //var_test4 = adc_once(ADC1_SE13, ADC_12bit);
-        ADC_GetMessage[2][i] = adc_once(ADC1_SE14, ADC_12bit); //brown
+        ADC_GetMessage[2][i] = adc_once(ADC1_SE13, ADC_12bit); //brown
         ADC_GetMessage[3][i] = adc_once(ADC1_SE15, ADC_12bit);  //orange
         ADC_GetMessage[4][i] = adc_once(ADC1_SE11, ADC_12bit);  //new
     }

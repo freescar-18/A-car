@@ -26,7 +26,9 @@ extern uint16 last_stop;//终点停车标记 大于1为停车
 extern uint8 level;
 extern uint16 dis_right,dis_left;
 extern uint16 dis_back;
-
+extern uint8 wait_flag;
+extern uint16 start_flag;
+extern uint16 turn_car_dis;
 extern void OutPut_Data_test(void);
 /*!
  *  @brief      main函数
@@ -64,13 +66,13 @@ void main()
    // 设置中断优先级  越小越优先 15个级别UART4_RX_TX_IRQn
     set_irq_priority(UART4_RX_TX_IRQn,0);
    // set_irq_priority(UART4_ERR_IRQn,1);
-    set_irq_priority(PIT2_IRQn,2); 
+    //set_irq_priority(PIT2_IRQn,2); 
     set_irq_priority(PORTC_IRQn,3);
     set_irq_priority(PORTB_IRQn,4);
     set_irq_priority(PORTA_IRQn,5);
     set_irq_priority(PORTE_IRQn,6);
-    set_irq_priority(PIT0_IRQn,7);
-    set_irq_priority(PIT1_IRQn,8);
+    set_irq_priority(PIT1_IRQn,7);
+    set_irq_priority(PIT0_IRQn,8);
       
     DisableInterrupts;
     DELAY_MS(10);
@@ -85,9 +87,9 @@ void main()
       //  test_steering();
     //    test_ADC();
      //   test_max_ADC();
-     /*
-        OutPut_Data_test();//示波器调试  
-        MAG3110_Read(&mag_read);
+     
+      //  OutPut_Data_test();//示波器调试 
+        /*
         LED_PrintShort(45,2,mag_read.mag_x);
         LED_PrintShort(45,4,mag_read.mag_y); 
        if( mag_read.mag_y < -3000 || (mag_read.mag_y > 500) )

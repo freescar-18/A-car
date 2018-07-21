@@ -12,7 +12,7 @@
 #include    "AllFunction.h"
 
 /**************************  全局变量   ***************************************/
-int8 times = 0; //定时停车标志位 PIT0定时器
+uint16 times = 0; //定时停车标志位 PIT0定时器
 uint8 car_dis_flag = 0; //高电平开始标记位
 uint16 car_dis = 0;  //超声波测距距离 单位cm
 uint8 car_dis_ms = 0; //超声波测高电平的时间 单位ms
@@ -31,14 +31,21 @@ extern float ADC_Normal[5];
 uint8 shizi = 0;
 extern uint16 dis_back;
 extern float speed_power;
-uint8 wait_flag_shizi = 2;
-uint8 last_flag_shizi = 4;
+uint8 wait_flag_shizi = 7;
+uint8 last_flag_shizi = 7;
 extern uint8 left_flag;
 extern uint8 right_flag;
 uint16 gameover = 0;
 extern uint8 turn_left_flag;
 extern uint8 turn_right_flag;
-float last_speed_power = 0.5;
+float last_speed_power = 1;
+uint8 is_shizi = 0;
+extern uint16 clj;
+extern struct _MAG mag_read;
+extern uint16 turn_car_dis;
+extern uint16 last_start_flag;
+uint8 gogogo = 0;
+extern int8 ones;
 /******************************************************************************* 
  *  @brief      PIT0中断服务函数
  *  @note
@@ -46,40 +53,49 @@ float last_speed_power = 0.5;
  ******************************************************************************/
 void PIT0_IRQHandler(void)
 {
-   /******  10s 停车  *******/
-   
-   if(times > 0)  
+   /******  10s 停车  *******/ 
+    if(times > 0)  
     {
-      times--;
+        times--;
+        if(times == 25 && is_shizi == 1)
+        {
+            shizi++;
+            beep_on();
+            if( shizi == wait_flag_shizi )  
+            {    
+                level = 50;
+                dis_back = 2000; // 用于十字倒车
+                last_stop = 0; //用于停车
+                dis_right = 0; //用于倒车
+                left_flag = 0;
+                right_flag = 0;
+            }
+            if( shizi == last_flag_shizi )  
+            {
+                speed_power = last_speed_power; //最后一个十字减速
+            }   
+        }      
+        if( ADC_Normal[4] > 2)
+        {
+            is_shizi = 0;
+        }
+        if(times < 1)
+        {
+            beep_off(); 
+        }
     }
     else
     {
-        beep_off(); 
         if(level == 1) // 正常模式
         {
             if(ADC_Normal[0] > 0.6 && ADC_Normal[3] > 0.6)
             {
                 times = 40;
-                shizi++;
-                beep_on();
-                if( shizi == wait_flag_shizi )  
-                {    
-                    level = 50;
-                    dis_back = 1600; // 用于十字倒车
-                    last_stop = 0; //用于停车
-                    dis_right = 0; //用于倒车
-                    left_flag = 0;
-                    right_flag = 0;
-                    speed_power = 1;
-                }
-                if( shizi == last_flag_shizi )  
-                {
-                    speed_power = last_speed_power; //最后一个十字减速
-                }
+                is_shizi = 1;
             }
         }
     }  
-    
+     
     PIT_Flag_Clear(PIT0);       //清中断标志位
 }
 
@@ -93,7 +109,7 @@ void PIT1_IRQHandler(void)
     if( start_flag > 0 ) //发车程序，给start_flag赋值就可以进入发车程序
     {
         start_car();
-        delay_flag = 60;
+        delay_flag = 120;
     }
     ///////////////////////////////////////////////////////////////////////////
     else if( level == 40 )//终点停车程序
@@ -130,8 +146,18 @@ void PIT1_IRQHandler(void)
             if(wait_flag == 0)
             {
                 turn_car();
-                if( flag == 1 )
+                if( speed_power > 0.5 && wait_flag == 0 ) // 高速情况直接发信号 确认是否可以会车
                 {
+                    uart_putchar (UART4,'1');
+                    uart_putchar (UART4,'1');
+                    uart_putchar (UART4,'1');
+                    uart_putchar (UART4,'1');
+                    speed_power = 0.1;
+                }
+                if( flag == 1 )  // 倒车完毕 发信号
+                {
+                    uart_putchar (UART4,'1');
+                    uart_putchar (UART4,'1');
                     uart_putchar (UART4,'1');
                     uart_putchar (UART4,'1');
                     wait_flag = 1;
@@ -140,19 +166,27 @@ void PIT1_IRQHandler(void)
             else
             {
                 //start_flag = 800;
-                last_stop = 0; 
-                dis_right = 0;
+                //last_stop = 0; 
+                test_motor();
+                flag = 1;
             }
         }    
     }
     ///////////////////////////////////////////////////////////////////////////
     else if( level == 50 )  //十字倒车等待
     {
-        if(last_stop <= 150)  stop_car();//给last_stop赋值就可以停车
+        if(last_stop <= 50)  stop_car();//给last_stop赋值就可以停车
         else 
         {
             turn_car();
+            if(gogogo == 1 && flag == 1)//直接拐
+            {
+                flag = 0;
+                level = 51;
+                dis_right = 0;
+            }
         }
+
     }
     ///////////////////////////////////////////////////////////////////////////
     else if( level == 51 ) //躲避
@@ -170,15 +204,18 @@ void PIT1_IRQHandler(void)
     else if( level == 52 ) //重新启动
     {
         turn_car_shizi();
-        times = 80; //不计算当前的十字
+        times = 400; //不计算当前的十字
+        is_shizi = 0; //非十字标志
     }
     ///////////////////////////////////////////////////////////////////////////
     else if( level == 100 ) //回赛道停车
     {
         gameover++;
+        speed_power = 0.1;
         test_motor();
-        if(gameover > 60)  flag = 1;
+        if(gameover > 200)  flag = 1;
     }
+    ///////////////////////////////////////////////////////////////////////////
     else
     {
         test_motor();
@@ -268,9 +305,11 @@ void uart4_test_handler(void)
          {
               uart_putchar (UART4,'2'); 
               uart_putchar (UART4,'2'); 
+              uart_putchar (UART4,'2'); 
+              uart_putchar (UART4,'2'); 
               flag = 0;
               wait_flag = 0;
-              start_flag = 400;
+              start_flag = last_start_flag;
               level = 100;
          }
         // bluetooth_data = 0; //////////////////这里只是为了下次蜂鸣器不响，你想干啥就干啥
@@ -279,22 +318,31 @@ void uart4_test_handler(void)
       {
          flag = 0;
          wait_flag = 0;
-         start_flag = 400;
+         start_flag = last_start_flag;
          level = 100;
         // bluetooth_data = 0; //////////////////这里只是为了下次蜂鸣器不响，你想干啥就干啥
       }
       if(bluetooth_data ==  '3')  //躲避
       {
           level = 51;
-          left_flag = 0;
           flag = 0;
+          dis_right = 0;
         // bluetooth_data = 0; //////////////////这里只是为了下次蜂鸣器不响，你想干啥就干啥
       }
       if(bluetooth_data ==  '4')  //重新启动
       {
           level = 52;
           flag = 0;
+          dis_right = 0;
         // bluetooth_data = 0; //////////////////这里只是为了下次蜂鸣器不响，你想干啥就干啥
+      }
+      if(bluetooth_data ==  '8') 
+      {
+        // wait_flag_shizi = 0;
+        // last_start_flag = 0;
+         level = 88;
+         flag = 0;
+         //bluetooth_data = 0; //////////////////这里只是为了下次蜂鸣器不响，你想干啥就干啥
       }
     }
 

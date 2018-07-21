@@ -19,7 +19,7 @@ int16 last_steerctrl; // 上次输出的舵机转角PWM
 int16 steerctrl_error; //舵机转角的增量（可正可负） 加上舵机中间值即为舵机需要转角的PWM
 
 float steer_P;
-float steer_D = 8;  // 输出的 P 值 和 D 值
+float steer_D = 5.5;  // 输出的 P 值 和 D 值
 extern float fe,fec,fe_last; 
 float eFuzzy[2] = {0,0}; 
 float ecFuzzy[2] = {0,0}; 
@@ -29,12 +29,12 @@ float Fuzzy_kd[6] = {0,0,0,0,0,/*末尾为0,用来查询模糊表步骤*/ 0};
 /*需要调节的参数*/
 float P_power = 1;
 float D_power = 1;
-float eRule[5] = {-61,-47,0,43,55}; //输入误差（fe）的范围，由负到正 
-                                            //如归一化偏差法，输入的误差为-0.9 到 0.9，乘以100即为-90到90，再分成7份
-float ecRule[5] = {-25,-15,0,15,25}; //输入误差的变化率（fec）的范围，由负到正
-float Rule_kp[5] = {-1.52,-0.34,0,0.32,1.37};  //  输出的P值的范围  
-                                                   //  负即是左转的P值（left -- right）(+85 - -75)
-float Rule_kd[5] = {0,0,0,0,0};  //输出的D值的范围
+float eRule[5] = {-36,-26,0,26,36}; //输入误差（fe）的范围，由负到正 
+                                            //如归一化偏差法，输入的误差为-0.9 到 0.9，乘以100即为-90到90，再分成7份 
+float ecRule[5] = {-25,-15,0,15,25}; //输入误差的变化率（fec）的范围，由负到正 
+float Rule_kp[5] = {-1,-0.5,0,0.5,1};  //  输出的P值的范围  
+                                                   //  负即是左转的P值（left -- right）(+85 - -75) 
+float Rule_kd[5] = {0,0,0,0,0};  //输出的D值的范围 
 /*
 int rule_kp[8][8]=  //p值规则表
 {

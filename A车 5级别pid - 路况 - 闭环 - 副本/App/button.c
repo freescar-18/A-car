@@ -51,8 +51,12 @@ extern uint8 last_flag_shizi;
 extern float steer_D;
 extern float last_speed_power;
 extern uint16 max_PWM;
-
-
+extern uint16 turn_car_dis;
+extern uint16 last_start_flag;
+extern float max_shizi;
+extern uint8 gogogo;
+extern float speed_power;
+extern float eRule[5];
 /*******************************************************************************
  *  @brief      PORT的参考中断服务函数
  *  @since      v5.0
@@ -85,18 +89,28 @@ void PORTA_IRQHandler(void)
         }
         else if(switch_mode == 0)//显示屏0
         {
-        
+            if(ones <= 1)
+            {
+                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //输出电机PWM  right-正
+                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  left-正
+                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM  left-反
+                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM  right-反
+                DELAY_MS(3000);
+                start_flag = 200;
+                level = 1;
+            }
+            ones = 2;
         }
         else if(switch_mode == 1)//显示屏1
         {
-            
+            turn_car_dis -= 100;
         }
         else if(switch_mode == 2)//显示屏2
         {
             wait_flag_shizi--;
         }
         else if(switch_mode == 3)//显示屏3
-        {
+        { 
             last_flag_shizi--;
         }
         else if(switch_mode == 4)//显示屏4
@@ -114,13 +128,24 @@ void PORTA_IRQHandler(void)
         else if(switch_mode == 6)//显示屏6
         {
             Rule_kp[0] = Rule_kp[0] + 0.05;
-            Rule_kp[1] = Rule_kp[1] + 0.05;
-            Rule_kp[3] = Rule_kp[3] - 0.05;
+            Rule_kp[1] = Rule_kp[1] + 0.01;
+            Rule_kp[3] = Rule_kp[3] - 0.01;
             Rule_kp[4] = Rule_kp[4] - 0.05;
         } 
         else if(switch_mode == 7)//显示屏7
         {
             read_flash();
+        }
+        else if(switch_mode == 8)//显示屏8
+        {
+            max_shizi -= 0.1;
+        }
+        else if(switch_mode == 9)//显示屏9
+        {
+            eRule[0] = eRule[0] + 1;
+            eRule[1] = eRule[1] + 1;
+            eRule[3] = eRule[3] - 1;
+            eRule[4] = eRule[4] - 1;
         }
         DELAY_MS(300);
          
@@ -145,14 +170,15 @@ void PORTA_IRQHandler(void)
         }
         else if(switch_mode == 0)//显示屏0
         {
-            turn_left_flag = 0;
+            //turn_left_flag = 0;
             //left_flag = 0;
             level = 51;
             flag = 0;
+            dis_right = 0;
         }
         else if(switch_mode == 1)//显示屏1
         {
-            
+            last_start_flag += 100;
         }
         else if(switch_mode == 2)//显示屏2
         {
@@ -181,6 +207,14 @@ void PORTA_IRQHandler(void)
         {
             write_flash();
         }
+        else if(switch_mode == 8)//显示屏8
+        {
+            gogogo = 1;
+        }
+        else if(switch_mode == 9)//显示屏9
+        {
+            
+        }
         DELAY_MS(300); 
      }
         
@@ -203,12 +237,12 @@ void PORTB_IRQHandler(void)
         }
         else if(switch_mode == 0)//显示屏0
         {
-            level = 52;
-            flag = 0;
+            //level = 88;
+            //flag = 0;
         }
         else if(switch_mode == 1)//显示屏1
         {
-            
+            turn_car_dis += 100;
         }
         else if(switch_mode == 2)//显示屏2
         {
@@ -233,13 +267,24 @@ void PORTB_IRQHandler(void)
         else if(switch_mode == 6)//显示屏6
         {
             Rule_kp[0] = Rule_kp[0] - 0.05;
-            Rule_kp[1] = Rule_kp[1] - 0.05;
-            Rule_kp[3] = Rule_kp[3] + 0.05;
+            Rule_kp[1] = Rule_kp[1] - 0.01;
+            Rule_kp[3] = Rule_kp[3] + 0.01;
             Rule_kp[4] = Rule_kp[4] + 0.05;
         } 
         else if(switch_mode == 7)//显示屏7
         {
             
+        }
+        else if(switch_mode == 8)//显示屏8
+        {
+            max_shizi += 0.1;
+        }
+        else if(switch_mode == 9)//显示屏9
+        {
+            eRule[0] = eRule[0] - 1;
+            eRule[1] = eRule[1] - 1;
+            eRule[3] = eRule[3] + 1;
+            eRule[4] = eRule[4] + 1;
         }
          DELAY_MS(300);
         /*  以上为用户任务  */
@@ -257,13 +302,14 @@ void PORTB_IRQHandler(void)
         }
         else if(switch_mode == 0)//显示屏0
         {
-            turn_right_flag = 0;
+            //turn_right_flag = 0;
             level = 51;
             flag = 0;
+            dis_right = 0;
         }
         else if(switch_mode == 1)//显示屏1
         {
-            
+            last_start_flag -= 100;
         }
         else if(switch_mode == 2)//显示屏2
         {
@@ -289,6 +335,14 @@ void PORTB_IRQHandler(void)
             steer_D -= 0.5;
         } 
         else if(switch_mode == 7)//显示屏7
+        {
+            
+        }
+        else if(switch_mode == 8)//显示屏8
+        {
+            gogogo = 0;
+        }
+        else if(switch_mode == 9)//显示屏9
         {
             
         }
@@ -339,6 +393,41 @@ void PORTC_IRQHandler(void)
            /*  以下为用户任务  */
          // car_dis_flag = 1;  //检测到高电平，开启超声波识别位
          // car_dis_ms = 0;
+          /*  以上为用户任务  */
+      }
+    m = 2;
+    if(PORTC_ISFR & (1 << m))          
+      {
+          PORTC_ISFR  = (1 << m);        //写1清中断标志位
+           /*  以下为用户任务  */
+          if(start_flag == 0 && level != 40 && level!= 100 && level != 86)
+          {
+              if (level == 88) //自己冲
+              {
+                  level = 40;
+                  dis_back = 0;
+                  dis_right = 0;
+                  last_stop = 90;
+                  wait_flag = 1;
+              }
+              else
+              {
+                  level = 40;
+                  dis_back = turn_car_dis;
+                  dis_right = 0;
+                  if( speed_power < 0.5)
+                  {
+                      last_stop = 80;
+                  }
+                  else
+                  {
+                      last_stop = 0;
+                  }
+                  wait_flag = 0;
+              }
+             // beep_on();
+            
+          }
           /*  以上为用户任务  */
       }
 }

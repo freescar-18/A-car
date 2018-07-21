@@ -61,7 +61,9 @@ extern float speed_forecast; //预测将要达到的速度（PWM）
 extern float speed_forecast_error; //预测将要达到的速度的偏差（差速）
 extern uint16 delay_flag;
 int16 first_steerctrl;
-uint16 max_PWM = 4800;
+uint16 max_PWM = 5100;
+uint16 i_die = 0;
+extern uint8 level;
 
 /*******************************************************************************
  *  @brief      test_ADC函数 
@@ -189,11 +191,11 @@ void test_motor(void)
                 if(speedctrl_left < -200) speedctrl_left_opp = 200;
                 else speedctrl_left_opp = -speedctrl_left;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,speedctrl_left_opp); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,7000); //输出电机PWM  
             }
             else  //左轮速度没溢出
             {   
-                if(speedctrl_left < 200) speedctrl_left = 200;
+                if(speedctrl_left < 1100) speedctrl_left = 1100;
                 if(speedctrl_left > max_PWM) speedctrl_left = max_PWM;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,speedctrl_left); //输出电机PWM  
                 ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM 
@@ -205,11 +207,11 @@ void test_motor(void)
                 if(speedctrl_right < -200) speedctrl_right_opp = 200;
                 else speedctrl_right_opp = -speedctrl_right;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,speedctrl_right_opp); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,7000); //输出电机PWM  
             }
             else  //右轮速度没溢出
             {
-                if(speedctrl_right < 200) speedctrl_right = 200;
+                if(speedctrl_right < 1100) speedctrl_right = 1100;
                 if(speedctrl_right > max_PWM) speedctrl_right = max_PWM;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,speedctrl_right); //输出电机PWM  
                 ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM 
@@ -220,7 +222,8 @@ void test_motor(void)
             {               
                 if( delay_flag > 0 ) 
                 {
-                    delay_flag--;           
+                    delay_flag--;  
+                    ftm_pwm_duty(S3010_FTM, S3010_CH,Maxsteering);
                 }
                 else
                 {
@@ -238,6 +241,7 @@ void test_motor(void)
                     first_steerctrl = steerctrl; //自启动
                 }
                 ftm_pwm_duty(S3010_FTM, S3010_CH,steerctrl);  //输出舵机PWM
+                i_die = 0;
             }
             ////////////////////////////////////////////////////////////////////////
             if( flag == 1 ) // 进入死循环，电机停止转动，此时因为几十毫秒过去了，还是这么小，所以就停车了
@@ -246,9 +250,17 @@ void test_motor(void)
                 ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  left-正
                 ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM  left-反
                 ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM  right-反
-                if(ADC_Value[0] > 50 || ADC_Value[1] > 50 || ADC_Value[2] > 50 || ADC_Value[3] > 50)
+                if( ( ADC_Value[0] > 50 || ADC_Value[1] > 50 || ADC_Value[2] > 50 || ADC_Value[3] > 50) && (level != 86) )
                 {
-                  flag = 0;
+                    flag = 0;
+                }
+                i_die++;  //   赛车出界后处理
+                if(i_die == 500)//   出界超过5s后的处理
+                {
+                    uart_putchar (UART4,'8');
+                    uart_putchar (UART4,'8');
+                    uart_putchar (UART4,'8');
+                    uart_putchar (UART4,'8');
                 }
             }
         }  
@@ -284,11 +296,11 @@ void test_max_ADC(void)
 {
     ADC_GetMessage[0][1] = adc_once(ADC1_SE10, ADC_12bit); //Green
     ADC_GetMessage[1][1] = adc_once(ADC1_SE12, ADC_12bit); //blue
-    ADC_GetMessage[2][1] = adc_once(ADC1_SE14, ADC_12bit); //brown
+    ADC_GetMessage[2][1] = adc_once(ADC1_SE13, ADC_12bit); //brown
     ADC_GetMessage[3][1] = adc_once(ADC1_SE15, ADC_12bit);  //orange
-    ADC_GetMessage[4][1] = adc_once(ADC1_SE12, ADC_12bit);  //new
+    ADC_GetMessage[4][1] = adc_once(ADC1_SE11, ADC_12bit);  //new
     
-    for(w = 0;w < 4; w++)
+    for(w = 0;w < 5; w++)
     {
         if( ADC_GetMessage[w][1] >= ADC_max_test[w])
             ADC_max_test[w] = ADC_GetMessage[w][1];
@@ -299,6 +311,7 @@ void test_max_ADC(void)
     LED_PrintShort(0,2,ADC_max_test[2]);  //显示褐色电感值
     LED_PrintShort(0,3,ADC_max_test[3]);  //显示橙色电感值    
     LED_PrintShort(0,4,ADC_max_test[4]);  //显示电感值
+    LED_P6x8Str(50,6,"A car");
 }
 /*******************************************************************************
  *  @brief      test_max_ADC_flash_write函数

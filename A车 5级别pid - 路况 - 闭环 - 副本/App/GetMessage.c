@@ -39,9 +39,6 @@ uint8 flag = 0;    //用于停车的标志位
                  //
 
 
-uint8 huandao_flag_a=0,huandao_flag_b=0,huandao_flag_c=0,huandao_flag_d=0,huandao_flag_e=0,huandao_flag_f=0;//识别入环点
-uint16 ruhuandao_jishu_a=0,ruhuandao_jishu_b=0;//入环打角计数
-uint16 chuhuandao_jishu_a=0,chuhuandao_jishu_b=0;//出环打角计数
 float ADC_Yuanhuan_L1=0.000,ADC_Yuanhuan_L2=0.000,ADC_Yuanhuan_L3=0.000,ADC_Yuanhuan_L4=0.000,ADC_Yuanhuan_L5=0.000;
 
 extern int16 steerctrl;

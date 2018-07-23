@@ -23,6 +23,8 @@ void Round_about(void);
 #define Min_SamplingNum (3)  //滤波时滤去首位的个数
 #define DUOJI_RUHUAN    820
 
+#define dataNum     19//储存的归一化后的电感值个数 最好是奇数
+
 
 #endif  //__GETMESSAGE_H__
     

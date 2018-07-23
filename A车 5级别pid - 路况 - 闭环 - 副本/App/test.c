@@ -155,6 +155,10 @@ void test_motor(void)
         MessageProcessing(); //信息采集
         ADCnormal(); //采集的信息归一化
         ADCerror_diff(); //偏差法计算 误差 和 误差的变化率
+        if(straight() == 1)
+        {
+          
+        }
        // road_check();
         
         if(round_vaule!=0)//环岛

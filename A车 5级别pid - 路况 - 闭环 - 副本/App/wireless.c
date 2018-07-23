@@ -90,9 +90,10 @@ unsigned short CRC_CHECK(unsigned char *databuf,unsigned char CRC_CNT)
 2. * 功能说明： SCI 示波器调试函数
 3. * 参数说明：
 4. OutData[] 需要发送的数值赋予该数组
-5. * 函数返回：无符号结果值
-6. * 修改时间： 2013-2-10
-7.  移植时，移植时要注意到，send_b，OutData[]，已经在text.c文件定义*/
+5. * 函数返回：无符号结果值*/
+extern uint8 rhd_n_flag_d,rhd_s_flag_d,chd_n_flag_b;
+extern float fe;
+
 
   void OutPut_Data_test(void)
  {
@@ -155,7 +156,7 @@ void OutPut_Data_test_sscom(void)
    {
      uart_putchar (UART4,(char)databuff[l*4]);
     }
-   uart_putchar (UART5,'b');
+   uart_putchar (UART4,'b');
    for(l=0;l<5;l++)//发送OutData[]第二个数据
    {
      uart_putchar (UART4,(char)databuff[l*4+1]);

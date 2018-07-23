@@ -1,22 +1,22 @@
 /*!
  * @file       button.c
- * @brief      °´¼üº¯Êı
+ * @brief      æŒ‰é”®å‡½æ•°
  * @author     
- * @version    A³µ
+ * @version    Aè½¦
  * @date       
  */
 
-/**************************  °üº¬Í·ÎÄ¼ş  **************************************/
+/**************************  åŒ…å«å¤´æ–‡ä»¶  **************************************/
 //#include    "common.h"
 #include    "include.h"
 #include    "AllFunction.h"
 
-/**************************  È«¾Ö±äÁ¿   ***************************************/
-extern uint16 steering_test,motorctrl_test; //testÎÄ¼ş
-extern uint16 flag;  //testÎÄ¼ş
-extern uint16 jishu;  //GetMessageÎÄ¼ş
-extern uint16 ADC_Maxing[5]; //ÓÃÓÚ¶ÁÈ¡flashÖĞ´æ´¢µÄ×î´óµç¸ĞÖµ
-extern uint8 adc_test; //Ìø³ö×î´óµç¸ĞÖµ²É¼¯µÄ±êÖ¾Î»
+/**************************  å…¨å±€å˜é‡   ***************************************/
+extern uint16 steering_test,motorctrl_test; //testæ–‡ä»¶
+extern uint16 flag;  //testæ–‡ä»¶
+extern uint16 jishu;  //GetMessageæ–‡ä»¶
+extern uint16 ADC_Maxing[5]; //ç”¨äºè¯»å–flashä¸­å­˜å‚¨çš„æœ€å¤§ç”µæ„Ÿå€¼
+extern uint8 adc_test; //è·³å‡ºæœ€å¤§ç”µæ„Ÿå€¼é‡‡é›†çš„æ ‡å¿—ä½
 extern float Rule_kd[5];
 extern float Rule_kp[5];
 extern float speed_Rule[5];
@@ -26,16 +26,13 @@ extern uint32 timevar = 0;
 extern uint8 chaoshengbotime = 0;
 extern int  length = 0;
 extern uint8 flag_csb = 0;
-int8 ones = 0;//Ö»ÄÜĞ´Ò»´ÎÊı¾İ£¡£¡
+int8 ones = 0;//åªèƒ½å†™ä¸€æ¬¡æ•°æ®ï¼ï¼
 int8 tab = 0;
-extern int8 times; //¶¨Ê±Í£³µ±êÖ¾Î» PIT0¶¨Ê±Æ÷
-extern uint16 last_stop;//ÖÕµãÍ£³µ±ê¼Ç ´óÓÚ1ÎªÍ£³µ
-extern uint8 car_dis_flag; //¸ßµçÆ½¿ªÊ¼±ê¼ÇÎ»
-extern uint16 car_dis;  //³¬Éù²¨²â¾à¾àÀë µ¥Î»cm
-extern uint8 car_dis_ms; //³¬Éù²¨²â¸ßµçÆ½µÄÊ±¼ä µ¥Î»ms
-extern uint16 start_flag;
-extern uint8 level;
-extern uint16 dis_right,dis_left;
+extern int8 times; //å®šæ—¶åœè½¦æ ‡å¿—ä½ PIT0å®šæ—¶å™¨
+extern uint16 last_stop;//ç»ˆç‚¹åœè½¦æ ‡è®° å¤§äº1ä¸ºåœè½¦
+extern uint8 car_dis_flag; //é«˜ç”µå¹³å¼€å§‹æ ‡è®°ä½
+extern uint16 car_dis;  //è¶…å£°æ³¢æµ‹è·è·ç¦» å•ä½cm
+extern uint8 car_dis_ms; //è¶…å£°æ³¢æµ‹é«˜ç”µå¹³çš„æ—¶é—´ å•ä½ms
 extern uint16 speed;
 extern uint16 delay_flag;
 extern uint16 dis_back;
@@ -58,56 +55,66 @@ extern uint8 gogogo;
 extern float speed_power;
 extern float eRule[5];
 /////////////////////////////////////////////////////////////////////////////// 
-extern uint16 round_vaule;// round_vaule=0       ²»Èë»·
-                       // round_vaule=1       »·ÔÚ×ó±ß
-                       // round_vaule=2       »·ÔÚÓÒ±ß
-//Ê¶±ğãĞÖµ
+extern uint16 round_vaule;// round_vaule=0       ä¸å…¥ç¯
+                       // round_vaule=1       ç¯åœ¨å·¦è¾¹
+                       // round_vaule=2       ç¯åœ¨å³è¾¹
+//è¯†åˆ«é˜ˆå€¼
 extern float  round_up_vaule;
 extern float round_down_vaule;
-//É²³µÇ¿¶È
+//åˆ¹è½¦å¼ºåº¦
 extern uint8 round_stop_vaule;
 extern uint8 page_line;
 extern uint8 write_flash_flag;
 extern uint8 read_flash_flag;
+unsigned char switch_data;
+
+
+/*
+extern uint8 n_flag,rhd_n_flag,rhd_n_flag_a,rhd_n_flag_b,rhd_n_flag_c,rhd_n_flag_d,rhd_n_flag_e,rhd_n_flag_f,rhd_n_flag_g;
+extern uint8 s_flag,rhd_s_flag,rhd_s_flag_a,rhd_s_flag_b,rhd_s_flag_c,rhd_s_flag_d,rhd_s_flag_e,rhd_s_flag_f,rhd_s_flag_g;
+extern uint8 chd_n_flag,chd_n_flag_a,chd_n_flag_b;                              
+extern uint8 chd_s_flag,chd_s_flag_a,chd_s_flag_b;  
+*/
+
 /*******************************************************************************
- *  @brief      PORTµÄ²Î¿¼ÖĞ¶Ï·şÎñº¯Êı
+ *  @brief      PORTçš„å‚è€ƒä¸­æ–­æœåŠ¡å‡½æ•°
  *  @since      v5.0
  *  @warning    
  ******************************************************************************/
 void PORTA_IRQHandler(void)
 {
-    uint8  n = 0;    //Òı½ÅºÅ
+    uint8  n = 0;    //å¼•è„šå·
     
-    ////////////////////PTA24  DOWN °´¼ü ///////////////////////////////////////
+    ////////////////////PTA24  DOWN æŒ‰é”® ///////////////////////////////////////
     n = 24;
-    if(PORTA_ISFR & (1 << n))           //PTE0´¥·¢ÖĞ¶Ï
+    if(PORTA_ISFR & (1 << n))           //PTE0è§¦å‘ä¸­æ–­
     {
-        PORTA_ISFR  = (1 << n);        //Ğ´1ÇåÖĞ¶Ï±êÖ¾Î»
+        PORTA_ISFR  = (1 << n);        //å†™1æ¸…ä¸­æ–­æ ‡å¿—ä½
 
-        /*  ÒÔÏÂÎªÓÃ»§ÈÎÎñ  */
-        if(switch_mode == 100)//³õÊ¼×´Ì¬
+        /*  ä»¥ä¸‹ä¸ºç”¨æˆ·ä»»åŠ¡  */
+        if(switch_mode == 100)//åˆå§‹çŠ¶æ€
         {
             if(adc_test  == 0)
             {
-                ADC_Maxing[0] = flash_read(SECTOR_NUM, 0, uint16);  //¶ÁÈ¡16Î»
-                ADC_Maxing[1] = flash_read(SECTOR_NUM, 4, uint16);  //¶ÁÈ¡16Î»
-                ADC_Maxing[2] = flash_read(SECTOR_NUM, 8, uint16);  //¶ÁÈ¡16Î»
-                ADC_Maxing[3] = flash_read(SECTOR_NUM, 12, uint16);  //¶ÁÈ¡16Î» 2×Ö½Ú
-                ADC_Maxing[4] = flash_read(SECTOR_NUM, 16, uint16);  //¶ÁÈ¡16Î» 2×Ö½Ú
+                ADC_Maxing[0] = flash_read(SECTOR_NUM, 0, uint16);  //è¯»å–16ä½
+                ADC_Maxing[1] = flash_read(SECTOR_NUM, 4, uint16);  //è¯»å–16ä½
+                ADC_Maxing[2] = flash_read(SECTOR_NUM, 8, uint16);  //è¯»å–16ä½
+                ADC_Maxing[3] = flash_read(SECTOR_NUM, 12, uint16);  //è¯»å–16ä½ 2å­—èŠ‚
+                ADC_Maxing[4] = flash_read(SECTOR_NUM, 16, uint16);  //è¯»å–16ä½ 2å­—èŠ‚
             }
             adc_test = 1;
             ones = 1;
 /**/        start_flag = 0;
             DELAY_MS(300);
         }
-        else if(switch_mode == 0)//ÏÔÊ¾ÆÁ0
+        else if(switch_mode == 0)//æ˜¾ç¤ºå±0
         {
             if(ones <= 1)
             {
-                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //Êä³öµç»úPWM  right-Õı
-                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //Êä³öµç»úPWM  left-Õı
-                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //Êä³öµç»úPWM  left-·´
-                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //Êä³öµç»úPWM  right-·´
+                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //è¾“å‡ºç”µæœºPWM  right-æ­£
+                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //è¾“å‡ºç”µæœºPWM  left-æ­£
+                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //è¾“å‡ºç”µæœºPWM  left-å
+                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //è¾“å‡ºç”µæœºPWM  right-å
                 DELAY_MS(3000);
                 start_flag = 130;
                 flag = 0;
@@ -115,22 +122,22 @@ void PORTA_IRQHandler(void)
             }
             ones = 2;
         }
-        else if(switch_mode == 1)//ÏÔÊ¾ÆÁ1
+        else if(switch_mode == 1)//æ˜¾ç¤ºå±1
         {
             turn_car_dis -= 100;
             DELAY_MS(300);
         }
-        else if(switch_mode == 2)//ÏÔÊ¾ÆÁ2
+        else if(switch_mode == 2)//æ˜¾ç¤ºå±2
         {
             wait_flag_shizi--;
             DELAY_MS(300);
         }
-        else if(switch_mode == 3)//ÏÔÊ¾ÆÁ3
+        else if(switch_mode == 3)//æ˜¾ç¤ºå±3
         { 
             last_flag_shizi--;
             DELAY_MS(300);
         }
-        else if(switch_mode == 4)//ÏÔÊ¾ÆÁ4
+        else if(switch_mode == 4)//æ˜¾ç¤ºå±4
         {
             if( page_line == 1)
               round_vaule--;
@@ -142,12 +149,12 @@ void PORTA_IRQHandler(void)
              round_stop_vaule -= 3;
            DELAY_MS(300);
         }
-        else if(switch_mode == 5)//ÏÔÊ¾ÆÁ5
+        else if(switch_mode == 5)//æ˜¾ç¤ºå±5
         {
             max_PWM -= 50;
             DELAY_MS(300);
         }
-        else if(switch_mode == 6)//ÏÔÊ¾ÆÁ6
+        else if(switch_mode == 6)//æ˜¾ç¤ºå±6
         {
             Rule_kp[0] = Rule_kp[0] + 0.05;
             Rule_kp[1] = Rule_kp[1] + 0.01;
@@ -155,17 +162,17 @@ void PORTA_IRQHandler(void)
             Rule_kp[4] = Rule_kp[4] - 0.05;
             DELAY_MS(300);
         } 
-        else if(switch_mode == 7)//ÏÔÊ¾ÆÁ7
+        else if(switch_mode == 7)//æ˜¾ç¤ºå±7
         {
             read_flash();
             DELAY_MS(300);
         }
-        else if(switch_mode == 8)//ÏÔÊ¾ÆÁ8
+        else if(switch_mode == 8)//æ˜¾ç¤ºå±8
         {
             max_shizi -= 0.1;
             DELAY_MS(300);
         }
-        else if(switch_mode == 9)//ÏÔÊ¾ÆÁ9
+        else if(switch_mode == 9)//æ˜¾ç¤ºå±9
         {
             eRule[0] = eRule[0] + 1;
             eRule[1] = eRule[1] + 1;
@@ -173,7 +180,7 @@ void PORTA_IRQHandler(void)
             eRule[4] = eRule[4] - 1;
             DELAY_MS(300);
         }
-        else if(switch_mode == 10)//ÏÔÊ¾ÆÁ10
+        else if(switch_mode == 10)//æ˜¾ç¤ºå±10
         {
             speed_Rule[0]--;
             speed_Rule[1]--;
@@ -183,77 +190,77 @@ void PORTA_IRQHandler(void)
             DELAY_MS(300);
         }
          
-        /*  ÒÔÉÏÎªÓÃ»§ÈÎÎñ  */
+        /*  ä»¥ä¸Šä¸ºç”¨æˆ·ä»»åŠ¡  */
     }
     
-     ///////////////// PTA25 LEFT °´¼ü  //////////////////////////////////////// 
+     ///////////////// PTA25 LEFT æŒ‰é”®  //////////////////////////////////////// 
     n = 25;
-    if(PORTA_ISFR & (1 << n))           //PTE3´¥·¢ÖĞ¶Ï
+    if(PORTA_ISFR & (1 << n))           //PTE3è§¦å‘ä¸­æ–­
     {
-        PORTA_ISFR  = (1 << n);        //Ğ´1ÇåÖĞ¶Ï±êÖ¾Î»
+        PORTA_ISFR  = (1 << n);        //å†™1æ¸…ä¸­æ–­æ ‡å¿—ä½
 
-        /*  ÒÔÏÂÎªÓÃ»§ÈÎÎñ  */
-        if(switch_mode == 100)//³õÊ¼×´Ì¬
+        /*  ä»¥ä¸‹ä¸ºç”¨æˆ·ä»»åŠ¡  */
+        if(switch_mode == 100)//åˆå§‹çŠ¶æ€
         {
-            if(ones == 0)//Ğ´ÈëÊı¾İ
+            if(ones == 0)//å†™å…¥æ•°æ®
             {
-                flash_init();  //³õÊ¼»¯flash
+                flash_init();  //åˆå§‹åŒ–flash
                 test_max_ADC_flash_write();
             }
-            ones = 1;  // Ö»»áĞ´Ò»´Î£¡£¡
+            ones = 1;  // åªä¼šå†™ä¸€æ¬¡ï¼ï¼
             DELAY_MS(300);
         }
-        else if(switch_mode == 0)//ÏÔÊ¾ÆÁ0
+        else if(switch_mode == 0)//æ˜¾ç¤ºå±0
         {
             
         }
-        else if(switch_mode == 1)//ÏÔÊ¾ÆÁ1
+        else if(switch_mode == 1)//æ˜¾ç¤ºå±1
         {
             last_start_flag += 100;
             DELAY_MS(300);
         }
-        else if(switch_mode == 2)//ÏÔÊ¾ÆÁ2
+        else if(switch_mode == 2)//æ˜¾ç¤ºå±2
         {
-           turn_left_flag = 0; //×ó×ª
-           turn_right_flag = 1; //¹Ø±ÕÓÒ×ª
+           turn_left_flag = 0; //å·¦è½¬
+           turn_right_flag = 1; //å…³é—­å³è½¬
            DELAY_MS(300);
         }
-        else if(switch_mode == 3)//ÏÔÊ¾ÆÁ3
+        else if(switch_mode == 3)//æ˜¾ç¤ºå±3
         {
            last_speed_power += 0.1;
            DELAY_MS(300);
         }
-        else if(switch_mode == 4)//ÏÔÊ¾ÆÁ4
+        else if(switch_mode == 4)//æ˜¾ç¤ºå±4
         {
            if( page_line != 1)
               page_line--;
             DELAY_MS(300);
         }
-        else if(switch_mode == 5)//ÏÔÊ¾ÆÁ5
+        else if(switch_mode == 5)//æ˜¾ç¤ºå±5
         {
            
         }
-        else if(switch_mode == 6)//ÏÔÊ¾ÆÁ6
+        else if(switch_mode == 6)//æ˜¾ç¤ºå±6
         {
             steer_D += 0.5;
             DELAY_MS(300);
         } 
-        else if(switch_mode == 7)//ÏÔÊ¾ÆÁ7
+        else if(switch_mode == 7)//æ˜¾ç¤ºå±7
         {
             if( write_flash_flag == 0 )
               write_flash();
             DELAY_MS(300);
         }
-        else if(switch_mode == 8)//ÏÔÊ¾ÆÁ8
+        else if(switch_mode == 8)//æ˜¾ç¤ºå±8
         {
             gogogo = 1;
             DELAY_MS(300);
         }
-        else if(switch_mode == 9)//ÏÔÊ¾ÆÁ9
+        else if(switch_mode == 9)//æ˜¾ç¤ºå±9
         {
             
         }
-        else if(switch_mode == 10)//ÏÔÊ¾ÆÁ10
+        else if(switch_mode == 10)//æ˜¾ç¤ºå±10
         {
            speed_error_Rule[0] += 2;
            speed_error_Rule[1]++;
@@ -262,44 +269,44 @@ void PORTA_IRQHandler(void)
         }
      }
         
-        /*  ÒÔÉÏÎªÓÃ»§ÈÎÎñ  */
+        /*  ä»¥ä¸Šä¸ºç”¨æˆ·ä»»åŠ¡  */
     
 }
 void PORTB_IRQHandler(void)
 {
     uint8 n=0; 
-    ////////////////////  PTB2 UP °´¼ü  ////////////////////////////////////////
+    ////////////////////  PTB2 UP æŒ‰é”®  ////////////////////////////////////////
     n = 2;
-    if(PORTB_ISFR & (1 << n))           //PTE1´¥·¢ÖĞ¶Ï
+    if(PORTB_ISFR & (1 << n))           //PTE1è§¦å‘ä¸­æ–­
     {
-        PORTB_ISFR  = (1 << n);        //Ğ´1ÇåÖĞ¶Ï±êÖ¾Î»
+        PORTB_ISFR  = (1 << n);        //å†™1æ¸…ä¸­æ–­æ ‡å¿—ä½
 
-        /*  ÒÔÏÂÎªÓÃ»§ÈÎÎñ  */
-        if(switch_mode == 100)//³õÊ¼×´Ì¬
+        /*  ä»¥ä¸‹ä¸ºç”¨æˆ·ä»»åŠ¡  */
+        if(switch_mode == 100)//åˆå§‹çŠ¶æ€
         {
           
         }
-        else if(switch_mode == 0)//ÏÔÊ¾ÆÁ0
+        else if(switch_mode == 0)//æ˜¾ç¤ºå±0
         {
             //level = 88;
             //flag = 0;
         }
-        else if(switch_mode == 1)//ÏÔÊ¾ÆÁ1
+        else if(switch_mode == 1)//æ˜¾ç¤ºå±1
         {
             turn_car_dis += 100;
             DELAY_MS(300);
         }
-        else if(switch_mode == 2)//ÏÔÊ¾ÆÁ2
+        else if(switch_mode == 2)//æ˜¾ç¤ºå±2
         {
             wait_flag_shizi++;
             DELAY_MS(300);
         }
-        else if(switch_mode == 3)//ÏÔÊ¾ÆÁ3
+        else if(switch_mode == 3)//æ˜¾ç¤ºå±3
         {
             last_flag_shizi++;
             DELAY_MS(300);
         }
-        else if(switch_mode == 4)//ÏÔÊ¾ÆÁ4
+        else if(switch_mode == 4)//æ˜¾ç¤ºå±4
         {
             if( page_line == 1)
               round_vaule++;
@@ -311,12 +318,12 @@ void PORTB_IRQHandler(void)
              round_stop_vaule += 3;
            DELAY_MS(300);
         }
-        else if(switch_mode == 5)//ÏÔÊ¾ÆÁ5
+        else if(switch_mode == 5)//æ˜¾ç¤ºå±5
         {
             max_PWM += 50;
             DELAY_MS(300);
         }
-        else if(switch_mode == 6)//ÏÔÊ¾ÆÁ6
+        else if(switch_mode == 6)//æ˜¾ç¤ºå±6
         {
             Rule_kp[0] = Rule_kp[0] - 0.05;
             Rule_kp[1] = Rule_kp[1] - 0.01;
@@ -324,16 +331,16 @@ void PORTB_IRQHandler(void)
             Rule_kp[4] = Rule_kp[4] + 0.05;
             DELAY_MS(300);
         } 
-        else if(switch_mode == 7)//ÏÔÊ¾ÆÁ7
+        else if(switch_mode == 7)//æ˜¾ç¤ºå±7
         {
             
         }
-        else if(switch_mode == 8)//ÏÔÊ¾ÆÁ8
+        else if(switch_mode == 8)//æ˜¾ç¤ºå±8
         {
             max_shizi += 0.1;
             DELAY_MS(300);
         }
-        else if(switch_mode == 9)//ÏÔÊ¾ÆÁ9
+        else if(switch_mode == 9)//æ˜¾ç¤ºå±9
         {
             eRule[0] = eRule[0] - 1;
             eRule[1] = eRule[1] - 1;
@@ -341,7 +348,7 @@ void PORTB_IRQHandler(void)
             eRule[4] = eRule[4] + 1;
             DELAY_MS(300);
         }
-        else if(switch_mode == 10)//ÏÔÊ¾ÆÁ10
+        else if(switch_mode == 10)//æ˜¾ç¤ºå±10
         {
             speed_Rule[0]++;
             speed_Rule[1]++;
@@ -350,93 +357,93 @@ void PORTB_IRQHandler(void)
             speed_Rule[4]++;
             DELAY_MS(300);
         }
-        /*  ÒÔÉÏÎªÓÃ»§ÈÎÎñ  */
+        /*  ä»¥ä¸Šä¸ºç”¨æˆ·ä»»åŠ¡  */
     }
-    /////////////  PTB3 RIGHT °´¼ü   ///////////////////////////////////////////
+    /////////////  PTB3 RIGHT æŒ‰é”®   ///////////////////////////////////////////
     n = 3;
-    if(PORTB_ISFR & (1 << n))           //PTE2´¥·¢ÖĞ¶Ï
+    if(PORTB_ISFR & (1 << n))           //PTE2è§¦å‘ä¸­æ–­
     {
-        PORTB_ISFR  = (1 << n);        //Ğ´1ÇåÖĞ¶Ï±êÖ¾Î»
+        PORTB_ISFR  = (1 << n);        //å†™1æ¸…ä¸­æ–­æ ‡å¿—ä½
 
-        /*  ÒÔÏÂÎªÓÃ»§ÈÎÎñ  */
-        if(switch_mode == 100)//³õÊ¼×´Ì¬
+        /*  ä»¥ä¸‹ä¸ºç”¨æˆ·ä»»åŠ¡  */
+        if(switch_mode == 100)//åˆå§‹çŠ¶æ€
         {
           
         }
-        else if(switch_mode == 0)//ÏÔÊ¾ÆÁ0
+        else if(switch_mode == 0)//æ˜¾ç¤ºå±0
         {
             
         }
-        else if(switch_mode == 1)//ÏÔÊ¾ÆÁ1
+        else if(switch_mode == 1)//æ˜¾ç¤ºå±1
         {
             last_start_flag -= 100;
             DELAY_MS(300);
         }
-        else if(switch_mode == 2)//ÏÔÊ¾ÆÁ2
+        else if(switch_mode == 2)//æ˜¾ç¤ºå±2
         {
-           turn_right_flag = 0; //ÓÒ×ª
-           turn_left_flag = 1; //¹Ø±Õ×ó×ª
+           turn_right_flag = 0; //å³è½¬
+           turn_left_flag = 1; //å…³é—­å·¦è½¬
            DELAY_MS(300);
         }
-        else if(switch_mode == 3)//ÏÔÊ¾ÆÁ3
+        else if(switch_mode == 3)//æ˜¾ç¤ºå±3
         {
            last_speed_power -= 0.1;
            DELAY_MS(300);
         }
-        else if(switch_mode == 4)//ÏÔÊ¾ÆÁ4
+        else if(switch_mode == 4)//æ˜¾ç¤ºå±4
         {
            if( page_line != 4)
               page_line++;
             DELAY_MS(300);
         }
-        else if(switch_mode == 5)//ÏÔÊ¾ÆÁ4
+        else if(switch_mode == 5)//æ˜¾ç¤ºå±4
         {
            
         }
-        else if(switch_mode == 6)//ÏÔÊ¾ÆÁ6
+        else if(switch_mode == 6)//æ˜¾ç¤ºå±6
         {
             steer_D -= 0.5;
             DELAY_MS(300);
         } 
-        else if(switch_mode == 7)//ÏÔÊ¾ÆÁ7
+        else if(switch_mode == 7)//æ˜¾ç¤ºå±7
         {
             
         }
-        else if(switch_mode == 8)//ÏÔÊ¾ÆÁ8
+        else if(switch_mode == 8)//æ˜¾ç¤ºå±8
         {
             gogogo = 0;
             DELAY_MS(300);
         }
-        else if(switch_mode == 9)//ÏÔÊ¾ÆÁ9
+        else if(switch_mode == 9)//æ˜¾ç¤ºå±9
         {
             
         }
-        else if(switch_mode == 10)//ÏÔÊ¾ÆÁ10
+        else if(switch_mode == 10)//æ˜¾ç¤ºå±10
         {
            speed_error_Rule[0] -= 2;
            speed_error_Rule[1]--;
            speed_error_Rule[2]--;
            DELAY_MS(300);
         }
-        /*  ÒÔÉÏÎªÓÃ»§ÈÎÎñ  */
+        /*  ä»¥ä¸Šä¸ºç”¨æˆ·ä»»åŠ¡  */
     }
               
 }
 
 void PORTE_IRQHandler(void)
 {
-    uint8  n = 0;    //Òı½ÅºÅ     
-     //PTE10 ¸É»É¹Ü
+    uint8  n = 0;    //å¼•è„šå·     
+     //PTE10 å¹²ç°§ç®¡
     n = 10;
-    if(PORTE_ISFR & (1 << n))           //PTE10´¥·¢ÖĞ¶Ï
+    if(PORTE_ISFR & (1 << n))           //PTE10è§¦å‘ä¸­æ–­
     {
-        PORTE_ISFR  = (1 << n);        //Ğ´1ÇåÖĞ¶Ï±êÖ¾Î»
+        PORTE_ISFR  = (1 << n);        //å†™1æ¸…ä¸­æ–­æ ‡å¿—ä½
 
-        /*  ÒÔÏÂÎªÓÃ»§ÈÎÎñ  */
+        /*  ä»¥ä¸‹ä¸ºç”¨æˆ·ä»»åŠ¡  */
         //beep_on();
           if(start_flag == 0 && level != 40 && level!= 100 && level != 86)
           {
-              if (level == 88) //×Ô¼º³å
+              if (level == 88) //è‡ªå·±å†²
               {
                   level = 40;
                   dis_back = 0;
@@ -464,39 +471,39 @@ void PORTE_IRQHandler(void)
              // beep_on();
             
           }
-        /*  ÒÔÉÏÎªÓÃ»§ÈÎÎñ  */
+        /*  ä»¥ä¸Šä¸ºç”¨æˆ·ä»»åŠ¡  */
     }
 
 }
 
 void PORTC_IRQHandler(void)
 {
-    uint8  m = 0;    //Òı½ÅºÅ
+    uint8  m = 0;    //å¼•è„šå·
     m = 10;
-    if(PORTC_ISFR & (1 << m))           //PTC10´¥·¢ÖĞ¶Ï
+    if(PORTC_ISFR & (1 << m))           //PTC10è§¦å‘ä¸­æ–­
       {
-          PORTC_ISFR  = (1 << m);        //Ğ´1ÇåÖĞ¶Ï±êÖ¾Î»   
+          PORTC_ISFR  = (1 << m);        //å†™1æ¸…ä¸­æ–­æ ‡å¿—ä½   
           nrf_handler();
       } 
     
-    ////////////////////////////³¬Éù²¨²â¾àËùÓÃ²ÎÊı//////////////////////////////
+    ////////////////////////////è¶…å£°æ³¢æµ‹è·æ‰€ç”¨å‚æ•°//////////////////////////////
     m = 4;
     if(PORTC_ISFR & (1 << m))          
       {
-          PORTC_ISFR  = (1 << m);        //Ğ´1ÇåÖĞ¶Ï±êÖ¾Î»
-           /*  ÒÔÏÂÎªÓÃ»§ÈÎÎñ  */
-         // car_dis_flag = 1;  //¼ì²âµ½¸ßµçÆ½£¬¿ªÆô³¬Éù²¨Ê¶±ğÎ»
+          PORTC_ISFR  = (1 << m);        //å†™1æ¸…ä¸­æ–­æ ‡å¿—ä½
+           /*  ä»¥ä¸‹ä¸ºç”¨æˆ·ä»»åŠ¡  */
+         // car_dis_flag = 1;  //æ£€æµ‹åˆ°é«˜ç”µå¹³ï¼Œå¼€å¯è¶…å£°æ³¢è¯†åˆ«ä½
          // car_dis_ms = 0;
-          /*  ÒÔÉÏÎªÓÃ»§ÈÎÎñ  */
+          /*  ä»¥ä¸Šä¸ºç”¨æˆ·ä»»åŠ¡  */
       }
     m = 2;
     if(PORTC_ISFR & (1 << m))          
       {
-          PORTC_ISFR  = (1 << m);        //Ğ´1ÇåÖĞ¶Ï±êÖ¾Î»
-           /*  ÒÔÏÂÎªÓÃ»§ÈÎÎñ  */
+          PORTC_ISFR  = (1 << m);        //å†™1æ¸…ä¸­æ–­æ ‡å¿—ä½
+           /*  ä»¥ä¸‹ä¸ºç”¨æˆ·ä»»åŠ¡  */
          /* if(start_flag == 0 && level != 40 && level!= 100 && level != 86)
           {
-              if (level == 88) //×Ô¼º³å
+              if (level == 88) //è‡ªå·±å†²
               {
                   level = 40;
                   dis_back = 0;
@@ -522,7 +529,7 @@ void PORTC_IRQHandler(void)
              // beep_on();
             
           }*/
-          /*  ÒÔÉÏÎªÓÃ»§ÈÎÎñ  */
+          /*  ä»¥ä¸Šä¸ºç”¨æˆ·ä»»åŠ¡  */
       }
 }
 

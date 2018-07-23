@@ -35,7 +35,7 @@ extern void OutPut_Data_test(void);
  *  @since      
  *  @note       
  */
-void main()
+  void main()
 {   
     gpio_init (PTD15, GPO,0); 
     System_Initialization(); //初始化
@@ -45,7 +45,9 @@ void main()
     while(adc_test == 0)
     {
         test_max_ADC();
+        switch_read();
     }   
+    
     
     //初始化PIT1    
     pit_init_ms(PIT1, PIT1_TIMER);                                
@@ -126,5 +128,6 @@ void main()
             LED_PrintShort(0,5,length);
             LED_PrintShort(0,6,chaoshengbotime);
            */
+      
     }
 }

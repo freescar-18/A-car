@@ -51,7 +51,7 @@ extern int8 ones;
  *  @note
  *  @warning
  ******************************************************************************/
-void PIT0_IRQHandler(void)
+void    PIT0_IRQHandler(void)
 {
    /******  10s Í£³µ  *******/ 
     if(times > 0)  

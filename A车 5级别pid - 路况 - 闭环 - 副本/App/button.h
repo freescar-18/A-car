@@ -15,6 +15,7 @@ void PORTE_IRQHandler(void);  //PORTE的参考中断服务函数
 void PORTC_IRQHandler(void);
 void PORTB_IRQHandler(void);
 void PORTA_IRQHandler(void);
+void switch_read(void);
 
 /****************************  宏定义  ****************************************/
 

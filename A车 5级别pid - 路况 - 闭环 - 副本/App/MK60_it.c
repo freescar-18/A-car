@@ -31,8 +31,8 @@ extern float ADC_Normal[5];
 uint8 shizi = 0;
 extern uint16 dis_back;
 extern float speed_power;
-uint8 wait_flag_shizi = 7;
-uint8 last_flag_shizi = 7;
+uint8 wait_flag_shizi = 2;
+uint8 last_flag_shizi = 6;
 extern uint8 left_flag;
 extern uint8 right_flag;
 uint16 gameover = 0;
@@ -140,7 +140,7 @@ void PIT1_IRQHandler(void)
             }
              
         }*/
-        if(last_stop <= 100)  stop_car();//给last_stop赋值就可以停车
+        if(last_stop <= 130)  stop_car();//给last_stop赋值就可以停车
         else 
         {
             if(wait_flag == 0)

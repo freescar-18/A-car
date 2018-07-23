@@ -57,6 +57,18 @@ extern float max_shizi;
 extern uint8 gogogo;
 extern float speed_power;
 extern float eRule[5];
+/////////////////////////////////////////////////////////////////////////////// 
+extern uint16 round_vaule;// round_vaule=0       不入环
+                       // round_vaule=1       环在左边
+                       // round_vaule=2       环在右边
+//识别阈值
+extern float  round_up_vaule;
+extern float round_down_vaule;
+//刹车强度
+extern uint8 round_stop_vaule;
+extern uint8 page_line;
+extern uint8 write_flash_flag;
+extern uint8 read_flash_flag;
 /*******************************************************************************
  *  @brief      PORT的参考中断服务函数
  *  @since      v5.0
@@ -86,6 +98,7 @@ void PORTA_IRQHandler(void)
             adc_test = 1;
             ones = 1;
 /**/        start_flag = 0;
+            DELAY_MS(300);
         }
         else if(switch_mode == 0)//显示屏0
         {
@@ -96,7 +109,7 @@ void PORTA_IRQHandler(void)
                 ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM  left-反
                 ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM  right-反
                 DELAY_MS(3000);
-                start_flag = 200;
+                start_flag = 130;
                 flag = 0;
                 level = 1;
             }
@@ -105,26 +118,34 @@ void PORTA_IRQHandler(void)
         else if(switch_mode == 1)//显示屏1
         {
             turn_car_dis -= 100;
+            DELAY_MS(300);
         }
         else if(switch_mode == 2)//显示屏2
         {
             wait_flag_shizi--;
+            DELAY_MS(300);
         }
         else if(switch_mode == 3)//显示屏3
         { 
             last_flag_shizi--;
+            DELAY_MS(300);
         }
         else if(switch_mode == 4)//显示屏4
         {
-            speed_Rule[0]--;
-            speed_Rule[1]--;
-            speed_Rule[2]--;
-            speed_Rule[3]--;
-            speed_Rule[4]--;
+            if( page_line == 1)
+              round_vaule--;
+           else if( page_line == 2)
+             round_up_vaule -= 0.03;
+           else if( page_line == 3)
+             round_down_vaule -= 0.03;
+           else if( page_line == 4)
+             round_stop_vaule -= 3;
+           DELAY_MS(300);
         }
         else if(switch_mode == 5)//显示屏5
         {
             max_PWM -= 50;
+            DELAY_MS(300);
         }
         else if(switch_mode == 6)//显示屏6
         {
@@ -132,14 +153,17 @@ void PORTA_IRQHandler(void)
             Rule_kp[1] = Rule_kp[1] + 0.01;
             Rule_kp[3] = Rule_kp[3] - 0.01;
             Rule_kp[4] = Rule_kp[4] - 0.05;
+            DELAY_MS(300);
         } 
         else if(switch_mode == 7)//显示屏7
         {
             read_flash();
+            DELAY_MS(300);
         }
         else if(switch_mode == 8)//显示屏8
         {
             max_shizi -= 0.1;
+            DELAY_MS(300);
         }
         else if(switch_mode == 9)//显示屏9
         {
@@ -147,8 +171,17 @@ void PORTA_IRQHandler(void)
             eRule[1] = eRule[1] + 1;
             eRule[3] = eRule[3] - 1;
             eRule[4] = eRule[4] - 1;
+            DELAY_MS(300);
         }
-        DELAY_MS(300);
+        else if(switch_mode == 10)//显示屏10
+        {
+            speed_Rule[0]--;
+            speed_Rule[1]--;
+            speed_Rule[2]--;
+            speed_Rule[3]--;
+            speed_Rule[4]--;
+            DELAY_MS(300);
+        }
          
         /*  以上为用户任务  */
     }
@@ -168,33 +201,33 @@ void PORTA_IRQHandler(void)
                 test_max_ADC_flash_write();
             }
             ones = 1;  // 只会写一次！！
+            DELAY_MS(300);
         }
         else if(switch_mode == 0)//显示屏0
         {
-            //turn_left_flag = 0;
-            //left_flag = 0;
-            level = 51;
-            flag = 0;
-            dis_right = 0;
+            
         }
         else if(switch_mode == 1)//显示屏1
         {
             last_start_flag += 100;
+            DELAY_MS(300);
         }
         else if(switch_mode == 2)//显示屏2
         {
            turn_left_flag = 0; //左转
            turn_right_flag = 1; //关闭右转
+           DELAY_MS(300);
         }
         else if(switch_mode == 3)//显示屏3
         {
            last_speed_power += 0.1;
+           DELAY_MS(300);
         }
         else if(switch_mode == 4)//显示屏4
         {
-           speed_error_Rule[0] += 2;
-           speed_error_Rule[1]++;
-           speed_error_Rule[2]++;
+           if( page_line != 1)
+              page_line--;
+            DELAY_MS(300);
         }
         else if(switch_mode == 5)//显示屏5
         {
@@ -203,20 +236,30 @@ void PORTA_IRQHandler(void)
         else if(switch_mode == 6)//显示屏6
         {
             steer_D += 0.5;
+            DELAY_MS(300);
         } 
         else if(switch_mode == 7)//显示屏7
         {
-            write_flash();
+            if( write_flash_flag == 0 )
+              write_flash();
+            DELAY_MS(300);
         }
         else if(switch_mode == 8)//显示屏8
         {
             gogogo = 1;
+            DELAY_MS(300);
         }
         else if(switch_mode == 9)//显示屏9
         {
             
         }
-        DELAY_MS(300); 
+        else if(switch_mode == 10)//显示屏10
+        {
+           speed_error_Rule[0] += 2;
+           speed_error_Rule[1]++;
+           speed_error_Rule[2]++;
+           DELAY_MS(300);
+        }
      }
         
         /*  以上为用户任务  */
@@ -244,26 +287,34 @@ void PORTB_IRQHandler(void)
         else if(switch_mode == 1)//显示屏1
         {
             turn_car_dis += 100;
+            DELAY_MS(300);
         }
         else if(switch_mode == 2)//显示屏2
         {
             wait_flag_shizi++;
+            DELAY_MS(300);
         }
         else if(switch_mode == 3)//显示屏3
         {
             last_flag_shizi++;
+            DELAY_MS(300);
         }
         else if(switch_mode == 4)//显示屏4
         {
-            speed_Rule[0]++;
-            speed_Rule[1]++;
-            speed_Rule[2]++;
-            speed_Rule[3]++;
-            speed_Rule[4]++;
+            if( page_line == 1)
+              round_vaule++;
+           else if( page_line == 2)
+             round_up_vaule += 0.03;
+           else if( page_line == 3)
+             round_down_vaule += 0.03;
+           else if( page_line == 4)
+             round_stop_vaule += 3;
+           DELAY_MS(300);
         }
-        else if(switch_mode == 5)//显示屏4
+        else if(switch_mode == 5)//显示屏5
         {
             max_PWM += 50;
+            DELAY_MS(300);
         }
         else if(switch_mode == 6)//显示屏6
         {
@@ -271,6 +322,7 @@ void PORTB_IRQHandler(void)
             Rule_kp[1] = Rule_kp[1] - 0.01;
             Rule_kp[3] = Rule_kp[3] + 0.01;
             Rule_kp[4] = Rule_kp[4] + 0.05;
+            DELAY_MS(300);
         } 
         else if(switch_mode == 7)//显示屏7
         {
@@ -279,6 +331,7 @@ void PORTB_IRQHandler(void)
         else if(switch_mode == 8)//显示屏8
         {
             max_shizi += 0.1;
+            DELAY_MS(300);
         }
         else if(switch_mode == 9)//显示屏9
         {
@@ -286,8 +339,17 @@ void PORTB_IRQHandler(void)
             eRule[1] = eRule[1] - 1;
             eRule[3] = eRule[3] + 1;
             eRule[4] = eRule[4] + 1;
+            DELAY_MS(300);
         }
-         DELAY_MS(300);
+        else if(switch_mode == 10)//显示屏10
+        {
+            speed_Rule[0]++;
+            speed_Rule[1]++;
+            speed_Rule[2]++;
+            speed_Rule[3]++;
+            speed_Rule[4]++;
+            DELAY_MS(300);
+        }
         /*  以上为用户任务  */
     }
     /////////////  PTB3 RIGHT 按键   ///////////////////////////////////////////
@@ -303,29 +365,29 @@ void PORTB_IRQHandler(void)
         }
         else if(switch_mode == 0)//显示屏0
         {
-            //turn_right_flag = 0;
-            level = 51;
-            flag = 0;
-            dis_right = 0;
+            
         }
         else if(switch_mode == 1)//显示屏1
         {
             last_start_flag -= 100;
+            DELAY_MS(300);
         }
         else if(switch_mode == 2)//显示屏2
         {
            turn_right_flag = 0; //右转
            turn_left_flag = 1; //关闭左转
+           DELAY_MS(300);
         }
         else if(switch_mode == 3)//显示屏3
         {
            last_speed_power -= 0.1;
+           DELAY_MS(300);
         }
         else if(switch_mode == 4)//显示屏4
         {
-           speed_error_Rule[0] -= 2;
-           speed_error_Rule[1]--;
-           speed_error_Rule[2]--;
+           if( page_line != 4)
+              page_line++;
+            DELAY_MS(300);
         }
         else if(switch_mode == 5)//显示屏4
         {
@@ -334,6 +396,7 @@ void PORTB_IRQHandler(void)
         else if(switch_mode == 6)//显示屏6
         {
             steer_D -= 0.5;
+            DELAY_MS(300);
         } 
         else if(switch_mode == 7)//显示屏7
         {
@@ -342,12 +405,19 @@ void PORTB_IRQHandler(void)
         else if(switch_mode == 8)//显示屏8
         {
             gogogo = 0;
+            DELAY_MS(300);
         }
         else if(switch_mode == 9)//显示屏9
         {
             
         }
-        DELAY_MS(300);
+        else if(switch_mode == 10)//显示屏10
+        {
+           speed_error_Rule[0] -= 2;
+           speed_error_Rule[1]--;
+           speed_error_Rule[2]--;
+           DELAY_MS(300);
+        }
         /*  以上为用户任务  */
     }
               
@@ -371,8 +441,9 @@ void PORTE_IRQHandler(void)
                   level = 40;
                   dis_back = 0;
                   dis_right = 0;
-                  last_stop = 90;
+                  last_stop = 70;
                   wait_flag = 1;
+                  round_vaule = 0;
               }
               else
               {
@@ -381,13 +452,14 @@ void PORTE_IRQHandler(void)
                   dis_right = 0;
                   if( speed_power < 0.5)
                   {
-                      last_stop = 80;
+                      last_stop = 90;
                   }
                   else
                   {
                       last_stop = 0;
                   }
                   wait_flag = 0;
+                  round_vaule = 0;
               }
              // beep_on();
             

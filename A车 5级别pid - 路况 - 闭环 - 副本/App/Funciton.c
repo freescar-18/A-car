@@ -68,11 +68,21 @@ extern float last_speed_power;
 extern uint16 max_PWM;
 uint8 write_flash_flag = 0;
 uint8 read_flash_flag = 0;
-uint16 turn_car_dis = 2200;
-uint16 last_start_flag = 400;
+uint16 turn_car_dis = 1500;
+uint16 last_start_flag = 300;
 extern float max_shizi;
 extern uint8 gogogo;
 extern float eRule[5];
+/////////////////////////////////////////////////////////////////////////////// 
+extern uint16 round_vaule;// round_vaule=0       不入环
+                       // round_vaule=1       环在左边
+                       // round_vaule=2       环在右边
+//识别阈值
+extern float  round_up_vaule;
+extern float round_down_vaule;
+//刹车强度
+extern uint8 round_stop_vaule;
+uint8 page_line = 1;
 /*******************************************************************************
  *  @brief      beep_on函数
  *  @note       蜂鸣器一直响
@@ -196,28 +206,50 @@ void oled_view(void)
          switch_mode = 3;
      }
      /********* 拨码器 1111 *********/
-     /*********  调整速度 *********/
+     /*********  环 *********/
      else if( gpio_get(PTA28) == 1 && gpio_get(PTA29) == 1 && gpio_get(PTA26) == 1 && gpio_get(PTA27) == 1 )
      {
-         if( switch_mode != 4)//清屏
+         if( switch_mode != 4)//清屏  round_vaule round_up_vaule round_down_vaule round_stop_vaule  
          {
             LED_Fill(0x00);
          }
-         LED_P6x8Str(20,0,"change speed"); 
-         LED_P6x8Str(4,1,"speed");
-         LED_PrintValueF(4,2,speed_Rule[0],2);
-         LED_PrintValueF(4,3,speed_Rule[1],2);
-         LED_PrintValueF(4,4,speed_Rule[2],2);
-         LED_PrintValueF(4,5,speed_Rule[3],2);
-         LED_PrintValueF(4,6,speed_Rule[4],2);
-         LED_P6x8Str(10,7,"(up-d)");                 
-         LED_P6x8Str(60,1,"speederr");   
-         LED_PrintValueF(60,2,speed_error_Rule[4],2);
-         LED_PrintValueF(60,3,speed_error_Rule[3],2);
-         LED_PrintValueF(60,4,speed_error_Rule[2],2);
-         LED_PrintValueF(60,5,speed_error_Rule[1],2);
-         LED_PrintValueF(60,6,speed_error_Rule[0],2);
-         LED_P6x8Str(60,7,"(left-r)");
+         LED_P6x8Str(20,0,"round"); 
+         LED_P6x8Str(15,2,"round_vaule"); 
+         LED_PrintShort(85,2,round_vaule); 
+         LED_P6x8Str(15,3,"round_up"); 
+         LED_PrintValueF(85,3,round_up_vaule,3); 
+         LED_P6x8Str(15,4,"round_down"); 
+         LED_PrintValueF(85,4,round_down_vaule,3);
+         LED_P6x8Str(15,5,"round_stop"); 
+         LED_PrintShort(85,5,round_stop_vaule); 
+         if( page_line == 1)
+         {
+            LED_P6x8Str(4,2,"o");
+            LED_P6x8Str(4,3,"x");
+            LED_P6x8Str(4,4,"x");
+            LED_P6x8Str(4,5,"x");
+         }
+         else if( page_line == 2)
+         {
+            LED_P6x8Str(4,2,"x");
+            LED_P6x8Str(4,3,"o");
+            LED_P6x8Str(4,4,"x");
+            LED_P6x8Str(4,5,"x");
+         }
+         else if( page_line == 3)
+         {
+            LED_P6x8Str(4,2,"x");
+            LED_P6x8Str(4,3,"x");
+            LED_P6x8Str(4,4,"o");
+            LED_P6x8Str(4,5,"x");
+         }
+         else if( page_line == 4)
+         {
+            LED_P6x8Str(4,2,"x");
+            LED_P6x8Str(4,3,"x");
+            LED_P6x8Str(4,4,"x");
+            LED_P6x8Str(4,5,"o");
+         }
          switch_mode = 4;
      }
      /********* 拨码器 0111 *********/
@@ -317,6 +349,31 @@ void oled_view(void)
          LED_P6x8Str(10,7,"(up-d)"); 
          switch_mode = 9;
      }
+      /********* 拨码器 1001 *********/
+     /*********  调整速度 *********/
+     else if( gpio_get(PTA28) == 1 && gpio_get(PTA29) == 0 && gpio_get(PTA26) == 0 && gpio_get(PTA27) == 1 )
+     {
+         if( switch_mode != 9)//清屏
+         {
+            LED_Fill(0x00);
+         }
+         LED_P6x8Str(20,0,"change speed"); 
+         LED_P6x8Str(4,1,"speed");
+         LED_PrintValueF(4,2,speed_Rule[4],2);
+         LED_PrintValueF(4,3,speed_Rule[3],2);
+         LED_PrintValueF(4,4,speed_Rule[2],2);
+         LED_PrintValueF(4,5,speed_Rule[1],2);
+         LED_PrintValueF(4,6,speed_Rule[0],2);
+         LED_P6x8Str(10,7,"(up-d)");                 
+         LED_P6x8Str(60,1,"speederr");   
+         LED_PrintValueF(60,2,speed_error_Rule[0],2);
+         LED_PrintValueF(60,3,speed_error_Rule[1],2);
+         LED_PrintValueF(60,4,speed_error_Rule[2],2);
+         LED_PrintValueF(60,5,speed_error_Rule[3],2);
+         LED_PrintValueF(60,6,speed_error_Rule[4],2);
+         LED_P6x8Str(60,7,"(left-r)");
+         switch_mode = 9;
+     }
 }
 /*******************************************************************************
  *  @brief      write_flash函数
@@ -341,8 +398,7 @@ void write_flash(void)
     DELAY_MS(50);
     flash_write(SECTOR_NUM, 24, (uint16)turn_left_flag ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
     DELAY_MS(50);
-    flash_write(SECTOR_NUM, 40, (uint16)turn_right_flag ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
-    DELAY_MS(50);
+    
     flash_write(SECTOR_NUM, 28, (uint16)last_flag_shizi ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
     DELAY_MS(50);
     flash_write(SECTOR_NUM, 32, (uint16)(last_speed_power * 10) ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
@@ -356,6 +412,16 @@ void write_flash(void)
     flash_write(SECTOR_NUM, 48, (uint16)(max_shizi * 10)  ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
     DELAY_MS(50);
     flash_write(SECTOR_NUM, 52, (uint16)gogogo  ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 56, round_vaule ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 60, (uint16)(round_up_vaule * 100) ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 64, (uint16)(round_down_vaule * 100) ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 68, (uint16) round_stop_vaule ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 72, (uint16)turn_right_flag ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
     DELAY_MS(50);
     write_flash_flag = 1;
 }
@@ -374,7 +440,6 @@ void read_flash(void)
     ADC_Maxing[4] = flash_read(SECTOR_NUM, 16, uint16);  //读取16位 2字节*/
     wait_flag_shizi  = flash_read(SECTOR_NUM, 20, uint16); 
     turn_left_flag   = flash_read(SECTOR_NUM, 24, uint16); 
-    turn_right_flag  = flash_read(SECTOR_NUM, 40, uint16); 
     last_flag_shizi  = flash_read(SECTOR_NUM, 28, uint16); 
     last_speed_power = ((float)(flash_read(SECTOR_NUM, 32, uint16))) / 10; 
     max_PWM          = flash_read(SECTOR_NUM, 36, uint16); 
@@ -382,5 +447,10 @@ void read_flash(void)
     last_start_flag  = flash_read(SECTOR_NUM, 44, uint16);
     max_shizi        = ((float)(flash_read(SECTOR_NUM, 48, uint16))) / 10; 
     gogogo           = flash_read(SECTOR_NUM, 52, uint16);
+    round_vaule      = flash_read(SECTOR_NUM, 56, uint16);
+    round_up_vaule   = ((float)(flash_read(SECTOR_NUM, 60, uint16))) / 100;
+    round_down_vaule = ((float)(flash_read(SECTOR_NUM, 64, uint16))) / 100;
+    round_stop_vaule = flash_read(SECTOR_NUM, 68, uint16);
+    turn_right_flag  = flash_read(SECTOR_NUM, 72, uint16); 
     read_flash_flag  = 1;
 }

@@ -89,7 +89,7 @@ void start_car(void)
   /**/    //  if(ADC_Normal[2] < 0.3  && ADC_Normal[1] < 0.05)  steerctrl = Maxsteering; //左电感太小，向左打角
   /**/    //  else if(ADC_Normal[2] > 0.1 && ADC_Normal[1] > 0.6)  steerctrl = Minsteering; //右电感太大，向右打角
   /**/      if( ADC_Normal[2] < 0.4 &&  ADC_Normal[1] < 0.2 )  steerctrl = Maxsteering;
-  /**/      else steerctrl = Minsteering -+15;
+  /**/      else steerctrl = Minsteering + 15;
             /////////////////////////////舵机///////////////////////////////////////
             if(steerctrl <  Minsteering) steerctrl =  Minsteering;  //舵机转角保护
             if(steerctrl > Maxsteering) steerctrl = Maxsteering;  //舵机转角保护

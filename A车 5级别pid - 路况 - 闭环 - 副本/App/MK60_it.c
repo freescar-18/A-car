@@ -286,8 +286,8 @@ void PIT2_IRQHandler(void)
                 level = 88;
             else if(level == 5) //误判十字
                 level = 1;
-            times = 200; //误判十字
-            is_shizi = 0; //误判十字
+           // times = 200; //误判十字
+          //  is_shizi = 0; //误判十字
             round_stop_flag=1;
             max_PWM=max_PWM_new;//恢复pwm限制
             if((round_lr==1)||(round_lr==0))

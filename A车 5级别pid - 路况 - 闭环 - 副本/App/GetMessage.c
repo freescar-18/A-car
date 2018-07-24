@@ -60,7 +60,7 @@ uint cross_right = 0;
 uint16 round_is=0,round_in=0,round_out=0,round_over=0,round_num=0,round_stop=0,max_PWM_new=0,round_in_count=0,round_stop_flag=1;//round_vaule[3]={0},round_average[2],
 //环岛调整参数
 /////////////////////////////////////////////////////////////////////////////// 
-uint16 round_vaule=1;// round_vaule=0       不入环
+uint16 round_vaule=0;// round_vaule=0       不入环
                        // round_vaule=1       环在左边
                        // round_vaule=2       环在右边
                        // round_vaule=3       左右左
@@ -76,6 +76,8 @@ uint16 cross_up=0,crossroad=0,crossroads=0;
 extern uint16 max_PWM;
 extern uint8 is_shizi;
 extern int16 times;
+extern float last_speed_power;
+extern uint8 last_flag_shizi;
 /*******************************************************************************
  *  @brief      MessageProcessing函数
  *  @note       ADC信息采集处理，无归一化 
@@ -521,7 +523,7 @@ void Road_Message()
     if(round_stop_flag==1)
     {
       
-      round_stop=35;//刹车强度
+      round_stop=round_stop_vaule;//刹车强度
       round_stop_flag=! round_stop_flag;
     }
     if(max_PWM_new<max_PWM)//
@@ -621,7 +623,7 @@ void Round_about()
   if(round_is==2)
   {
     //环在右侧 
-    if((round_vaule==2)||(round_lr==1))
+    if((round_vaule==2)||((round_lr==1)&&((round_vaule==3)||(round_vaule==4))))
     {
       none_steerctrl=1;//关闭模糊pid
       steerctrl=770;   //大死角
@@ -663,7 +665,7 @@ void Round_about()
     }
     
     //环在左侧
-    if((round_vaule==1)||(round_lr==0))
+    if((round_vaule==1)||((round_lr==0)&&((round_vaule==3)||(round_vaule==4))))
     {
       
       none_steerctrl=1;//关闭模糊pid
@@ -718,7 +720,7 @@ void Round_about()
     
     if(round_over==1)
     {
-      if(ADC_Normal[4]<=1.0)//清除环标志位
+      if(ADC_Normal[4]<=1.1)//清除环标志位
       {
         round_in=0;
         round_is=0;
@@ -741,14 +743,14 @@ void Round_about()
     if(round_out==1)
     {
       //环在右侧 
-      if((round_vaule==2)||(round_lr==1))
+      if((round_vaule==2)||((round_lr==1)&&((round_vaule==3)||(round_vaule==4))))
       {
         none_steerctrl=1;//关闭模糊pid
         steerctrl=756;   //大死角
         //speed_round= -13;//      强制差数
         
         
-        if(ADC_Normal[4]>=1.1)//////取决于偏差变化范围
+        if(ADC_Normal[4]>=1.2)//////取决于偏差变化范围
         {
           none_steerctrl=0; //开启模糊pid
           
@@ -764,7 +766,7 @@ void Round_about()
       }
       
       //环在左侧
-      else if((round_vaule==1)||(round_lr==0))
+      else if((round_vaule==1)||((round_lr==0)&&((round_vaule==3)||(round_vaule==4))))
       {
         
         none_steerctrl=1;//关闭模糊pid
@@ -772,7 +774,7 @@ void Round_about()
        // speed_round=-16;//      强制差数
        // speed_pp=0.1;
         
-        if(ADC_Normal[4]>=1.1)
+        if(ADC_Normal[4]>=1.2)
         {
           none_steerctrl=0;
           round_over=1;//结束标志
@@ -784,5 +786,14 @@ void Round_about()
         }
       }
     }
+  }
+  if( level == 1 )
+  {
+      if( round_num == 1 )
+          if( last_flag_shizi == 11)
+              speed_power = last_speed_power;
+      if( round_num == 2 )
+          if( last_flag_shizi == 12)
+              speed_power = last_speed_power;
   }
 }

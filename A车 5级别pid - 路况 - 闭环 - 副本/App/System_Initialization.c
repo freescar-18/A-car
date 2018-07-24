@@ -53,8 +53,8 @@ void PIT_Initialization(void)
    // pit_init_ms(PIT1, PIT1_TIMER);                                
     //set_vector_handler(PIT1_VECTORn ,PIT1_IRQHandler); //设置PIT1的中断服务函数为 PIT1_IRQHandler
    // 初始化PIT2  用于超声波计时
-   // pit_init_us(PIT2, PIT2_TIMER);                                
-   // set_vector_handler(PIT2_VECTORn ,PIT2_IRQHandler); //设置PIT2的中断服务函数为 PIT2_IRQHandler
+    pit_init_ms(PIT2, PIT2_TIMER);                                
+    set_vector_handler(PIT2_VECTORn ,PIT2_IRQHandler); //设置PIT2的中断服务函数为 PIT2_IRQHandler
     //初始化PIT3
     //pit_init_ms(PIT3, PIT3_TIMER);                                
     //set_vector_handler(PIT3_VECTORn ,PIT3_IRQHandler); //设置PIT3的中断服务函数为 PIT3_IRQHandler
@@ -166,7 +166,7 @@ void ISR_Initialization(void)
     
     enable_irq(PIT0_IRQn); // 使能PIT0中断
    // enable_irq(PIT1_IRQn); // 使能PIT1中断
-   // enable_irq(PIT2_IRQn); // 使能PIT2中断
+    enable_irq(PIT2_IRQn); // 使能PIT2中断
    // enable_irq(PIT3_IRQn); // 使能PIT3中断
     enable_irq (PORTE_IRQn); //使能PORTE中断
     enable_irq (PORTA_IRQn); //使能PORTE中断

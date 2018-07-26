@@ -68,7 +68,7 @@ extern void OutPut_Data_test(void);
    // 设置中断优先级  越小越优先 15个级别UART4_RX_TX_IRQn
     set_irq_priority(UART4_RX_TX_IRQn,0);
    // set_irq_priority(UART4_ERR_IRQn,1);
-    //set_irq_priority(PIT2_IRQn,2); 
+    set_irq_priority(PIT2_IRQn,2); 
     set_irq_priority(PORTC_IRQn,3);
     set_irq_priority(PORTB_IRQn,4);
     set_irq_priority(PORTA_IRQn,5);

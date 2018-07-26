@@ -1,22 +1,22 @@
 /*!
  * @file       System_Initialization.c
- * @brief      åˆå§‹åŒ–å‡½æ•°
+ * @brief      ³õÊ¼»¯º¯Êı
  * @author     
- * @version    Aè½¦
+ * @version    A³µ
  * @date       
  */
    
-/**************************  åŒ…å«å¤´æ–‡ä»¶  **************************************/
+/**************************  °üº¬Í·ÎÄ¼ş  **************************************/
 //#include    "common.h"
 #include    "include.h"
 #include    "AllFunction.h"
 
 
-/**************************  å…¨å±€å˜é‡   ***************************************/
+/**************************  È«¾Ö±äÁ¿   ***************************************/
 extern struct _MAG mag_read;
     
 /*!
- *  @brief     ADCæ¨¡å—åˆå§‹åŒ– 
+ *  @brief     ADCÄ£¿é³õÊ¼»¯ 
  *  @param      
  *  @param      
  *  @since      v5.0
@@ -25,19 +25,19 @@ extern struct _MAG mag_read;
  */
 void ADC_Initialization(void)
 {
-    //ç”µæ„Ÿé‡‡é›†åˆå§‹åŒ–
+    //µç¸Ğ²É¼¯³õÊ¼»¯
     adc_init (ADC1_SE10); //PTB4
     adc_init (ADC1_SE11); //PTB5
     adc_init (ADC1_SE12); //PTB6
     adc_init (ADC1_SE13); //PTB7
     adc_init (ADC1_SE14); //PTB10
     adc_init (ADC1_SE15); //PTB11
-    //ç”µæºæ£€æµ‹åˆå§‹åŒ–
+    //µçÔ´¼ì²â³õÊ¼»¯
   //  adc_init (ADC1_SE9); //PTB1
 }
 
 /*!
- *  @brief     PITæ¨¡å—åˆå§‹åŒ– 
+ *  @brief     PITÄ£¿é³õÊ¼»¯ 
  *  @param      
  *  @param      
  *  @since      v5.0
@@ -46,22 +46,22 @@ void ADC_Initialization(void)
  */
 void PIT_Initialization(void)
 {    
-    //åˆå§‹åŒ–PIT0
+    //³õÊ¼»¯PIT0
     pit_init_ms(PIT0, PIT0_TIMER);                                
-    set_vector_handler(PIT0_VECTORn ,PIT0_IRQHandler); //è®¾ç½®PIT0çš„ä¸­æ–­æœåŠ¡å‡½æ•°ä¸º PIT0_IRQHandler
-    //åˆå§‹åŒ–PIT1
+    set_vector_handler(PIT0_VECTORn ,PIT0_IRQHandler); //ÉèÖÃPIT0µÄÖĞ¶Ï·şÎñº¯ÊıÎª PIT0_IRQHandler
+    //³õÊ¼»¯PIT1
    // pit_init_ms(PIT1, PIT1_TIMER);                                
-   // set_vector_handler(PIT1_VECTORn ,PIT1_IRQHandler); //è®¾ç½®PIT1çš„ä¸­æ–­æœåŠ¡å‡½æ•°ä¸º PIT1_IRQHandler
-   // åˆå§‹åŒ–PIT2  ç”¨äºè¶…å£°æ³¢è®¡æ—¶
-   // pit_init_us(PIT2, PIT2_TIMER);                                
-   // set_vector_handler(PIT2_VECTORn ,PIT2_IRQHandler); //è®¾ç½®PIT2çš„ä¸­æ–­æœåŠ¡å‡½æ•°ä¸º PIT2_IRQHandler
-    //åˆå§‹åŒ–PIT3
+   // set_vector_handler(PIT1_VECTORn ,PIT1_IRQHandler); //ÉèÖÃPIT1µÄÖĞ¶Ï·şÎñº¯ÊıÎª PIT1_IRQHandler
+   // ³õÊ¼»¯PIT2  ÓÃÓÚ³¬Éù²¨¼ÆÊ±
+    pit_init_ms(PIT2, PIT2_TIMER);                                
+    set_vector_handler(PIT2_VECTORn ,PIT2_IRQHandler); //ÉèÖÃPIT2µÄÖĞ¶Ï·şÎñº¯ÊıÎª PIT2_IRQHandler
+    //³õÊ¼»¯PIT3
     //pit_init_ms(PIT3, PIT3_TIMER);                                
-    //set_vector_handler(PIT3_VECTORn ,PIT3_IRQHandler); //è®¾ç½®PIT3çš„ä¸­æ–­æœåŠ¡å‡½æ•°ä¸º PIT3_IRQHandler
+    //set_vector_handler(PIT3_VECTORn ,PIT3_IRQHandler); //ÉèÖÃPIT3µÄÖĞ¶Ï·şÎñº¯ÊıÎª PIT3_IRQHandler
 }
 
 /*!
- *  @brief     FTMæ¨¡å—åˆå§‹åŒ– 
+ *  @brief     FTMÄ£¿é³õÊ¼»¯ 
  *  @param      
  *  @param      
  *  @since      v5.0
@@ -70,22 +70,22 @@ void PIT_Initialization(void)
  */
 void FTM_Initialization(void)
 {
-    //æ­£äº¤è§£ç åˆå§‹åŒ–
-    //ftm_quad_init(FTM1); //FTM1 æ­£äº¤è§£ç åˆå§‹åŒ–( PTA8ã€PIA9 )   FTM1_QDPHA_PIN
-    ftm_quad_init(FTM2); //FTM2 æ­£äº¤è§£ç åˆå§‹åŒ–( PTA10ã€PIA11 )
-    //èˆµæœºåˆå§‹åŒ–
-    ftm_pwm_init(S3010_FTM, S3010_CH, S3010_HZ,Midsteering); //åˆå§‹åŒ– èˆµæœº PWM
-    //ç”µæœºåˆå§‹åŒ– ç¬¬ä¸€ä»£è½¦åªéœ€æ§åˆ¶ MOTOR2 å’Œ MOTOR3 å³å¯éƒ½æ­£è½¬
-    ftm_pwm_init(MOTOR_FTM, MOTOR1_PWM, MOTOR_HZ, 0); //åˆå§‹åŒ– ç”µæœº PWM
-    ftm_pwm_init(MOTOR_FTM, MOTOR2_PWM, MOTOR_HZ, 0); //åˆå§‹åŒ– ç”µæœº PWM 
-    ftm_pwm_init(MOTOR_FTM, MOTOR3_PWM, MOTOR_HZ, 0); //åˆå§‹åŒ– ç”µæœº PWM
-    ftm_pwm_init(MOTOR_FTM, MOTOR4_PWM, MOTOR_HZ, 0); //åˆå§‹åŒ– ç”µæœº PWM
-    //lptmråˆå§‹åŒ–-ç¼–ç å™¨
+    //Õı½»½âÂë³õÊ¼»¯
+    //ftm_quad_init(FTM1); //FTM1 Õı½»½âÂë³õÊ¼»¯( PTA8¡¢PIA9 )   FTM1_QDPHA_PIN
+    ftm_quad_init(FTM2); //FTM2 Õı½»½âÂë³õÊ¼»¯( PTA10¡¢PIA11 )
+    //¶æ»ú³õÊ¼»¯
+    ftm_pwm_init(S3010_FTM, S3010_CH, S3010_HZ,Midsteering); //³õÊ¼»¯ ¶æ»ú PWM
+    //µç»ú³õÊ¼»¯ µÚÒ»´ú³µÖ»Ğè¿ØÖÆ MOTOR2 ºÍ MOTOR3 ¼´¿É¶¼Õı×ª
+    ftm_pwm_init(MOTOR_FTM, MOTOR1_PWM, MOTOR_HZ, 0); //³õÊ¼»¯ µç»ú PWM
+    ftm_pwm_init(MOTOR_FTM, MOTOR2_PWM, MOTOR_HZ, 0); //³õÊ¼»¯ µç»ú PWM 
+    ftm_pwm_init(MOTOR_FTM, MOTOR3_PWM, MOTOR_HZ, 0); //³õÊ¼»¯ µç»ú PWM
+    ftm_pwm_init(MOTOR_FTM, MOTOR4_PWM, MOTOR_HZ, 0); //³õÊ¼»¯ µç»ú PWM
+    //lptmr³õÊ¼»¯-±àÂëÆ÷
     lptmr_pulse_init(LPT0_ALT1,0xFFFF,LPT_Rising); 
 }
 
 /*!
- *  @brief     GPIOæ¨¡å—åˆå§‹åŒ– 
+ *  @brief     GPIOÄ£¿é³õÊ¼»¯ 
  *  @param      
  *  @param      
  *  @since      v5.0          
@@ -94,26 +94,26 @@ void FTM_Initialization(void)
  */
 void GPIO_Initialization(void)
 {
-    //æ‹¨ç å™¨åˆå§‹åŒ–
-    gpio_init (PTA28, GPI,0);  //åˆå§‹åŒ– PTB20 ç®¡è„šï¼Œæ–¹å‘è¾“å…¥
-    gpio_init (PTA29, GPI,0);  //åˆå§‹åŒ– PTB21 ç®¡è„šï¼Œæ–¹å‘è¾“å…¥
-    gpio_init (PTA26, GPI,0);  //åˆå§‹åŒ– PTB22 ç®¡è„šï¼Œæ–¹å‘è¾“å…¥
-    gpio_init (PTA27, GPI,0);  //åˆå§‹åŒ– PTB23 ç®¡è„šï¼Œæ–¹å‘è¾“å…¥
-    //æŒ‰é”®åˆå§‹åŒ–
-    port_init(PTA24, ALT1 | IRQ_FALLING | PULLUP ); //åˆå§‹åŒ– PTE0ç®¡è„šï¼Œå¤ç”¨åŠŸèƒ½ä¸ºGPIO ï¼Œä¸‹é™æ²¿è§¦å‘ä¸­æ–­ï¼Œä¸Šæ‹‰ç”µé˜»
-    port_init(PTB2, ALT1 | IRQ_FALLING | PULLUP ); //åˆå§‹åŒ– PTE1ç®¡è„šï¼Œå¤ç”¨åŠŸèƒ½ä¸ºGPIO ï¼Œä¸‹é™æ²¿è§¦å‘ä¸­æ–­ï¼Œä¸Šæ‹‰ç”µé˜»
-    port_init(PTB3, ALT1 | IRQ_FALLING | PULLUP ); //åˆå§‹åŒ– PTE2ç®¡è„šï¼Œå¤ç”¨åŠŸèƒ½ä¸ºGPIO ï¼Œä¸‹é™æ²¿è§¦å‘ä¸­æ–­ï¼Œä¸Šæ‹‰ç”µé˜»
-    port_init(PTA25, ALT1 | IRQ_FALLING | PULLUP ); //åˆå§‹åŒ– PTE3ç®¡è„šï¼Œå¤ç”¨åŠŸèƒ½ä¸ºGPIO ï¼Œä¸‹é™æ²¿è§¦å‘ä¸­æ–­ï¼Œä¸Šæ‹‰ç”µé˜»
-    //å¹²ç°§ç®¡åˆå§‹åŒ–
-    port_init(PTE10, ALT1 | IRQ_FALLING | PULLUP ); //åˆå§‹åŒ– PTE10ç®¡è„šï¼Œå¤ç”¨åŠŸèƒ½ä¸ºGPIO ï¼Œä¸‹é™æ²¿è§¦å‘ä¸­æ–­ï¼Œä¸Šæ‹‰ç”µé˜»
-    //è¶…å£°æ³¢æ¨¡å—æµ‹è·
-  //  port_init( PTC4, ALT1 | IRQ_RISING | PULLUP ); //åˆå§‹åŒ– PTB18ç®¡è„šï¼Œå¤ç”¨åŠŸèƒ½ä¸ºGPIO
-    set_vector_handler(PORTE_VECTORn ,PORTE_IRQHandler); //è®¾ç½®PORTEçš„ä¸­æ–­æœåŠ¡å‡½æ•°ä¸º PORTE_IRQHandler
-    set_vector_handler(PORTA_VECTORn ,PORTA_IRQHandler); //è®¾ç½®PORTAçš„ä¸­æ–­æœåŠ¡å‡½æ•°ä¸º PORTA_IRQHandler
-    set_vector_handler(PORTB_VECTORn ,PORTB_IRQHandler); //è®¾ç½®PORTBçš„ä¸­æ–­æœåŠ¡å‡½æ•°ä¸º PORTB_IRQHandler
-    set_vector_handler(PORTC_VECTORn ,PORTC_IRQHandler); //è®¾ç½®PORTCçš„ä¸­æ–­æœåŠ¡å‡½æ•°ä¸º PORTC_IRQHandler
-    //èœ‚é¸£å™¨åˆå§‹åŒ–
-    gpio_init (PTE1, GPO, 0); //åˆå§‹åŒ– PTC8ç®¡è„šï¼Œè¾“å‡ºï¼Œåˆå§‹ä½ç”µå¹³
+    //²¦ÂëÆ÷³õÊ¼»¯
+    gpio_init (PTA28, GPI,0);  //³õÊ¼»¯ PTB20 ¹Ü½Å£¬·½ÏòÊäÈë
+    gpio_init (PTA29, GPI,0);  //³õÊ¼»¯ PTB21 ¹Ü½Å£¬·½ÏòÊäÈë
+    gpio_init (PTA26, GPI,0);  //³õÊ¼»¯ PTB22 ¹Ü½Å£¬·½ÏòÊäÈë
+    gpio_init (PTA27, GPI,0);  //³õÊ¼»¯ PTB23 ¹Ü½Å£¬·½ÏòÊäÈë
+    //°´¼ü³õÊ¼»¯
+    port_init(PTA24, ALT1 | IRQ_FALLING | PULLUP ); //³õÊ¼»¯ PTE0¹Ü½Å£¬¸´ÓÃ¹¦ÄÜÎªGPIO £¬ÏÂ½µÑØ´¥·¢ÖĞ¶Ï£¬ÉÏÀ­µç×è
+    port_init(PTB2, ALT1 | IRQ_FALLING | PULLUP ); //³õÊ¼»¯ PTE1¹Ü½Å£¬¸´ÓÃ¹¦ÄÜÎªGPIO £¬ÏÂ½µÑØ´¥·¢ÖĞ¶Ï£¬ÉÏÀ­µç×è
+    port_init(PTB3, ALT1 | IRQ_FALLING | PULLUP ); //³õÊ¼»¯ PTE2¹Ü½Å£¬¸´ÓÃ¹¦ÄÜÎªGPIO £¬ÏÂ½µÑØ´¥·¢ÖĞ¶Ï£¬ÉÏÀ­µç×è
+    port_init(PTA25, ALT1 | IRQ_FALLING | PULLUP ); //³õÊ¼»¯ PTE3¹Ü½Å£¬¸´ÓÃ¹¦ÄÜÎªGPIO £¬ÏÂ½µÑØ´¥·¢ÖĞ¶Ï£¬ÉÏÀ­µç×è
+    //¸É»É¹Ü³õÊ¼»¯
+    port_init(PTE10, ALT1 | IRQ_FALLING | PULLUP ); //³õÊ¼»¯ PTE10¹Ü½Å£¬¸´ÓÃ¹¦ÄÜÎªGPIO £¬ÏÂ½µÑØ´¥·¢ÖĞ¶Ï£¬ÉÏÀ­µç×è
+    //³¬Éù²¨Ä£¿é²â¾à
+  //  port_init( PTC4, ALT1 | IRQ_RISING | PULLUP ); //³õÊ¼»¯ PTB18¹Ü½Å£¬¸´ÓÃ¹¦ÄÜÎªGPIO
+    set_vector_handler(PORTE_VECTORn ,PORTE_IRQHandler); //ÉèÖÃPORTEµÄÖĞ¶Ï·şÎñº¯ÊıÎª PORTE_IRQHandler
+    set_vector_handler(PORTA_VECTORn ,PORTA_IRQHandler); //ÉèÖÃPORTAµÄÖĞ¶Ï·şÎñº¯ÊıÎª PORTA_IRQHandler
+    set_vector_handler(PORTB_VECTORn ,PORTB_IRQHandler); //ÉèÖÃPORTBµÄÖĞ¶Ï·şÎñº¯ÊıÎª PORTB_IRQHandler
+    set_vector_handler(PORTC_VECTORn ,PORTC_IRQHandler); //ÉèÖÃPORTCµÄÖĞ¶Ï·şÎñº¯ÊıÎª PORTC_IRQHandler
+    //·äÃùÆ÷³õÊ¼»¯
+    gpio_init (PTE1, GPO, 0); //³õÊ¼»¯ PTC8¹Ü½Å£¬Êä³ö£¬³õÊ¼µÍµçÆ½
     
    // MAG3110_Init();
    // mag_read.mag_x_offset = -885;
@@ -122,7 +122,7 @@ void GPIO_Initialization(void)
 }
 
 /*!
- *  @brief     OLEDæ¨¡å—åˆå§‹åŒ– 
+ *  @brief     OLEDÄ£¿é³õÊ¼»¯ 
  *  @param      
  *  @param      
  *  @since      v5.0
@@ -131,12 +131,12 @@ void GPIO_Initialization(void)
  */
 void OLED_Initialization(void)
 {
-    //OLEDåˆå§‹åŒ–
+    //OLED³õÊ¼»¯
     OLED_Init();
 }
 
 /*!
- *  @brief     æ€»åˆå§‹åŒ– 
+ *  @brief     ×Ü³õÊ¼»¯ 
  *  @param      
  *  @param      
  *  @since      v5.0
@@ -150,11 +150,11 @@ void System_Initialization(void)
     FTM_Initialization();
     ADC_Initialization(); 
     OLED_Initialization();
-    uart_init (UART4, 9600);//ä¸²å£åˆå§‹åŒ–
+    uart_init (UART4, 9600);//´®¿Ú³õÊ¼»¯
 }
 
 /*!
- *  @brief     ä¸­æ–­å¯åŠ¨å‡½æ•°
+ *  @brief     ÖĞ¶ÏÆô¶¯º¯Êı
  *  @param      
  *  @param      
  *  @since      v5.0
@@ -164,23 +164,23 @@ void System_Initialization(void)
 void ISR_Initialization(void)
 {
     
-    enable_irq(PIT0_IRQn); // ä½¿èƒ½PIT0ä¸­æ–­
+    enable_irq(PIT0_IRQn); // Ê¹ÄÜPIT0ÖĞ¶Ï
 
-   // enable_irq(PIT1_IRQn); // ä½¿èƒ½PIT1ä¸­æ–­
-   // enable_irq(PIT2_IRQn); // ä½¿èƒ½PIT2ä¸­æ–­
-  //enable_irq(PIT1_IRQn); // ä½¿èƒ½PIT1ä¸­æ–­
-    enable_irq(PIT2_IRQn); // ä½¿èƒ½PIT2ä¸­æ–­
+   // enable_irq(PIT1_IRQn); // Ê¹ÄÜPIT1ÖĞ¶Ï
+    enable_irq(PIT2_IRQn); // Ê¹ÄÜPIT2ÖĞ¶Ï
+  //enable_irq(PIT1_IRQn); // Ê¹ÄÜPIT1ÖĞ¶Ï
+    enable_irq(PIT2_IRQn); // Ê¹ÄÜPIT2ÖĞ¶Ï
 
-   // enable_irq(PIT3_IRQn); // ä½¿èƒ½PIT3ä¸­æ–­
-    enable_irq (PORTE_IRQn); //ä½¿èƒ½PORTEä¸­æ–­
-    enable_irq (PORTA_IRQn); //ä½¿èƒ½PORTEä¸­æ–­
-    enable_irq (PORTB_IRQn); //ä½¿èƒ½PORTEä¸­æ–­
-    enable_irq (PORTC_IRQn); //ä½¿èƒ½PORTEä¸­æ–­
+   // enable_irq(PIT3_IRQn); // Ê¹ÄÜPIT3ÖĞ¶Ï
+    enable_irq (PORTE_IRQn); //Ê¹ÄÜPORTEÖĞ¶Ï
+    enable_irq (PORTA_IRQn); //Ê¹ÄÜPORTEÖĞ¶Ï
+    enable_irq (PORTB_IRQn); //Ê¹ÄÜPORTEÖĞ¶Ï
+    enable_irq (PORTC_IRQn); //Ê¹ÄÜPORTEÖĞ¶Ï
    // DisableInterrupts;
-   // beep_on();  //åˆå§‹åŒ–æˆåŠŸå“ä¸€ä¸‹
+   // beep_on();  //³õÊ¼»¯³É¹¦ÏìÒ»ÏÂ
    // DELAY();
    // beep_off();
     DELAY_MS(1000);
-   // EnableInterrupts; //åŒæ—¶å¯åŠ¨ä¸­æ–­
+   // EnableInterrupts; //Í¬Ê±Æô¶¯ÖĞ¶Ï
     
 }

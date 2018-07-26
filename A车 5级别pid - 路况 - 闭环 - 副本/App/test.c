@@ -61,7 +61,7 @@ extern float speed_forecast; //预测将要达到的速度（PWM）
 extern float speed_forecast_error; //预测将要达到的速度的偏差（差速）
 extern uint16 delay_flag;
 int16 first_steerctrl;
-uint16 max_PWM = 5100;
+uint16 max_PWM = 4100;
 uint16 i_die = 0;
 extern uint8 level;
 
@@ -230,12 +230,12 @@ void test_motor(void)
             }
            ////////////////////////////////////////////////////////////////////////          
            ////////////////////////////停车///////////////////////////////////////
-            if((ADC_Value[0] <= 50) && (ADC_Value[1] <= 50) && (ADC_Value[2] <= 50) && (ADC_Value[3] <= 50) ) //如果四个电感都偏小，则将flag变成1，然后进入下面的死循环
+            if((ADC_Value[0] <= 100) && (ADC_Value[1] <= 100) && (ADC_Value[2] <= 100) && (ADC_Value[3] <= 100) ) //如果四个电感都偏小，则将flag变成1，然后进入下面的死循环
             {               
                 if( delay_flag > 0 ) 
                 {
                     delay_flag--;  
-                    ftm_pwm_duty(S3010_FTM, S3010_CH,Maxsteering);
+                    ftm_pwm_duty(S3010_FTM, S3010_CH,Maxsteering - 20);
                 }
                 else
                 {
@@ -248,7 +248,7 @@ void test_motor(void)
             /////////////////////////////舵机///////////////////////////////////////
                 if(steerctrl <  Minsteering) steerctrl =  Minsteering;  //舵机转角保护
                 if(steerctrl > Maxsteering) steerctrl = Maxsteering;  //舵机转角保护
-                if((ADC_Value[0] > 100) || (ADC_Value[1] > 100) || (ADC_Value[2] > 100) || (ADC_Value[3] > 100) ) 
+                if((ADC_Value[0] > 300) || (ADC_Value[1] > 300) || (ADC_Value[2] > 300) || (ADC_Value[3] > 300) ) 
                 {
                     first_steerctrl = steerctrl; //自启动
                 }

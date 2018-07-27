@@ -78,6 +78,7 @@ extern uint8 is_shizi;
 extern int16 times;
 extern float last_speed_power;
 extern uint8 last_flag_shizi;
+float round_shizi = 0.9;
 /*******************************************************************************
  *  @brief      MessageProcessing函数
  *  @note       ADC信息采集处理，无归一化 
@@ -713,7 +714,7 @@ void Round_about()
   if(round_in==1)
   {
     //
-    if((ADC_Normal[0] >= 0.900)&&(ADC_Normal[3] >= 0.900))
+    if((ADC_Normal[0] >= round_shizi)&&(ADC_Normal[3] >= round_shizi))
     {
       round_out=1;//出环标志
     }

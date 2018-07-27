@@ -108,7 +108,7 @@ extern void OutPut_Data_test(void);
        }*/
        //  LED_PrintShort(45,5,mag_read.mag_x_offset); 
        //  LED_PrintShort(45,6,mag_read.mag_y_offset);     
-       //  Freecars_scope();//多通道示波器调试      
+     //    Freecars_scope();//多通道示波器调试      
      //    gpio_turn(PTD15);   
    //  OutPut_Data_test_sscom();//串口助手调试  
       //   MessageProcessing(); 

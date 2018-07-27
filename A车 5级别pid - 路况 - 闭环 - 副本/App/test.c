@@ -61,7 +61,7 @@ extern float speed_forecast; //预测将要达到的速度（PWM）
 extern float speed_forecast_error; //预测将要达到的速度的偏差（差速）
 extern uint16 delay_flag;
 int16 first_steerctrl;
-uint16 max_PWM = 4100;
+uint16 max_PWM = 4800;
 uint16 i_die = 0;
 extern uint8 level;
 
